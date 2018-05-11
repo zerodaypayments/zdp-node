@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Confirmed transfer
@@ -12,6 +14,8 @@ import org.bouncycastle.util.encoders.Hex;
  *
  */
 public class BroadcastedTransfer implements Serializable {
+
+	private static final Logger log = LoggerFactory.getLogger(BroadcastedTransfer.class);
 
 	private String uuid;
 
