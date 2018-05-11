@@ -23,12 +23,6 @@
 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-jms</artifactId>
-			<version>5.0.6.RELEASE</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>5.0.6.RELEASE</version>
 		</dependency>
@@ -77,7 +71,7 @@
 
 		<dependency>
 			<groupId>io.zdp</groupId>
-			<artifactId>io.zdp.crypto</artifactId>
+			<artifactId>io.zdp.api.model</artifactId>
 			<version>1.0</version>
 		</dependency>
 	</dependencies>
