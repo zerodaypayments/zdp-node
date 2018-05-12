@@ -34,7 +34,7 @@ public class CurrentTransferDaoImpl implements CurrentTransferDao {
 	@PostConstruct
 	public void init() throws IOException {
 
-		this.currentTransfersFile = new File(SystemUtils.USER_HOME, ".zdp" + File.separator + "transactions" + File.separator + "current.dat");
+		this.currentTransfersFile = new File(SystemUtils.USER_HOME, ".zdp" + File.separator + "data" + File.separator + "tx.dat");
 
 		if (false == this.currentTransfersFile.exists()) {
 			FileUtils.forceMkdirParent(this.currentTransfersFile);

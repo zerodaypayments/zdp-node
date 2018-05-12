@@ -7,11 +7,15 @@ import io.zdp.node.network.topology.NetworkNodeType;
 
 @Service
 public class NodeConfigurationService {
-	
+
 	private NetworkNode node;
-	
+
 	public NetworkNodeType getNodeType() {
-		return node.getNodeType(); 
+		return node.getNodeType();
 	}
-	
+
+	public NetworkNode getNode() {
+		return node;
+	}
+
 }

@@ -1,6 +1,7 @@
 package io.zdp.node.network.topology;
 
 import java.io.Serializable;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.Curves;
 import io.zdp.crypto.Keys;
+import io.zdp.crypto.key.ZDPKeyPair;
 
 /**
  * 	Validation nodes
@@ -35,14 +37,25 @@ public class NetworkNode implements Serializable {
 
 	private PublicKey pub;
 
+	private PrivateKey priv;
+
 	private NetworkNodeType nodeType;
+
+	public PrivateKey getECPrivateKey() {
+		return priv;
+	}
 
 	public String getPrivateKey() {
 		return privateKey;
 	}
 
 	public void setPrivateKey(String privateKey) {
+
 		this.privateKey = privateKey;
+
+		ZDPKeyPair kp = ZDPKeyPair.createFromPrivateKeyBase58(privateKey, Curves.VALIDATION_NODE_CURVE);
+
+		this.priv = kp.getPrivateKeyAsPrivateKey();
 	}
 
 	public NetworkNodeType getNodeType() {

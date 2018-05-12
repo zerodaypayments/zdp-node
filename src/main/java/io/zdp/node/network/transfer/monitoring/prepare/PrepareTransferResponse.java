@@ -1,6 +1,7 @@
 package io.zdp.node.network.transfer.monitoring.prepare;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 import org.bouncycastle.util.encoders.Hex;
 
@@ -28,6 +29,10 @@ public class PrepareTransferResponse implements Serializable {
 	private String serverUuid;
 
 	private byte[] serverSignature;
+
+	public byte[] toSignatureData() {
+		return (responseUuid + transferUuid + status + serverUuid).getBytes(StandardCharsets.UTF_8);
+	}
 
 	public String getResponseUuid() {
 		return responseUuid;

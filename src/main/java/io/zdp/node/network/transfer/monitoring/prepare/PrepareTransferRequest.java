@@ -3,6 +3,7 @@ package io.zdp.node.network.transfer.monitoring.prepare;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -16,9 +17,9 @@ import org.bouncycastle.util.encoders.Hex;
 @SuppressWarnings("serial")
 public class PrepareTransferRequest implements Serializable {
 
-	private String transferUuid;
+	private String requestUuid = UUID.randomUUID().toString();
 
-	private String requestUuid;
+	private String transferUuid;
 
 	private String from;
 
@@ -137,7 +138,9 @@ public class PrepareTransferRequest implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PrepareTransferRequest [transferUuid=" + transferUuid + ", from=" + from + ", balance=" + balance + ", height=" + height + ", hash=" + hash + ", date=" + date + ", serverUuid=" + serverUuid + ", serverSignature=" + Hex.toHexString(serverSignature) + "]";
+		return "PrepareTransferRequest [transferUuid=" + transferUuid + ", from=" + from + ", balance=" + balance
+				+ ", height=" + height + ", hash=" + hash + ", date=" + date + ", serverUuid=" + serverUuid
+				+ ", serverSignature=" + Hex.toHexString(serverSignature) + "]";
 	}
 
 }
