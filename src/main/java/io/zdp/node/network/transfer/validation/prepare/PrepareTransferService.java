@@ -1,4 +1,4 @@
-package io.zdp.node.network.transfer.monitoring.prepare;
+package io.zdp.node.network.transfer.validation.prepare;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import io.zdp.crypto.Signing;
 import io.zdp.node.domain.Account;
 import io.zdp.node.network.topology.NetworkNodeService;
-import io.zdp.node.network.transfer.monitoring.AccountsInProgressCache;
-import io.zdp.node.network.transfer.monitoring.prepare.PrepareTransferResponse.Status;
+import io.zdp.node.network.transfer.validation.AccountsInProgressCache;
+import io.zdp.node.network.transfer.validation.prepare.PrepareTransferResponse.Status;
 import io.zdp.node.service.AccountService;
 import io.zdp.node.service.NodeConfigurationService;
 

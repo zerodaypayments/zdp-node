@@ -38,7 +38,7 @@ public class TransferValidationService {
 	private TransferDao transferDao;
 
 	@Transactional(readOnly = true)
-	public boolean isValid(TransferRequest request) throws TransferException {
+	public void validate(TransferRequest request) throws TransferException {
 
 		log.debug("Request: " + request);
 
@@ -137,8 +137,6 @@ public class TransferValidationService {
 			throw new TransferException(TransferResponse.ERROR_SYSTEM);
 
 		}
-
-		return true;
 
 	}
 

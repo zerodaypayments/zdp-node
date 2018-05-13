@@ -1,4 +1,4 @@
-package io.zdp.node.network.transfer.monitoring;
+package io.zdp.node.network.transfer.validation;
 
 import java.util.concurrent.TimeUnit;
 

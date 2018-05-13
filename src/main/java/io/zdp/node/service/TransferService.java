@@ -49,68 +49,74 @@ public class TransferService {
 
 		final TransferResponse resp = new TransferResponse();
 
-		if (validationService.isValid(request)) {
+		// Validate transfer request
+		validationService.validate(request);
+		
+		// Ask Validation network
+		
 
-			final ZDPAccountUuid fromAccountUuid = new ZDPAccountUuid(request.getFrom());
-			final Account fromAccount = this.accountDao.findByUuid(fromAccountUuid.getPublicKeyHash());
-
-			final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
-
-			Account toAccount = this.accountDao.findByUuid(toAccountUuid.getPublicKeyHash());
-
-			if (toAccount == null) {
-
-				log.warn("Not found TO account: " + request.getTo());
-
-				toAccount = new Account();
-				toAccount.setBalance(BigDecimal.ZERO);
-				toAccount.setCurve(toAccountUuid.getCurveAsIndex());
-				toAccount.setUuid(toAccountUuid.getPublicKeyHash());
-
-				this.accountDao.save(toAccount);
-
-			}
-
-			final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
-
-			byte[] signature = request.getTransferUuid();
-
-			log.debug("txUuid: " + Hex.toHexString(signature));
-
-			// Save Transfer
-			final Transfer transfer = new Transfer();
-			transfer.setDate(new Date());
-			transfer.setFromAccountId(fromAccount.getId());
-			transfer.setToAccountId(toAccount.getId());
-			transfer.setUuid(signature);
-			transfer.setAmount(request.getAmountAsBigDecimal());
-			transfer.setFee(TX_FEE);
-			transfer.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
-			this.transferDao.save(transfer);
-
-			resp.setUuid(Transfer.TX_PREFIX + Base58.encode(transfer.getUuid()));
-
-			log.debug("Saved tx: " + transfer);
-
-			// Update balances
-			BigDecimal newFromBalance = fromAccount.getBalance().subtract(totalAmount);
-			fromAccount.setBalance(newFromBalance);
-			this.accountDao.save(fromAccount);
-
-			log.debug("saved: " + fromAccount);
-
-			BigDecimal newToBalance = toAccount.getBalance().add(request.getAmountAsBigDecimal());
-			toAccount.setBalance(newToBalance);
-			this.accountDao.save(toAccount);
-
-			log.debug("saved: " + toAccount);
-
-		}
-
-		log.debug("Response: " + resp);
+		save(request, resp);
 
 		return resp;
 
+	}
+
+	private void save(TransferRequest request, final TransferResponse resp) {
+		final ZDPAccountUuid fromAccountUuid = new ZDPAccountUuid(request.getFrom());
+		final Account fromAccount = this.accountDao.findByUuid(fromAccountUuid.getPublicKeyHash());
+
+		final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
+
+		Account toAccount = this.accountDao.findByUuid(toAccountUuid.getPublicKeyHash());
+
+		if (toAccount == null) {
+
+			log.warn("Not found TO account: " + request.getTo());
+
+			toAccount = new Account();
+			toAccount.setBalance(BigDecimal.ZERO);
+			toAccount.setCurve(toAccountUuid.getCurveAsIndex());
+			toAccount.setUuid(toAccountUuid.getPublicKeyHash());
+
+			this.accountDao.save(toAccount);
+
+		}
+
+		final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
+
+		byte[] signature = request.getTransferUuid();
+
+		log.debug("txUuid: " + Hex.toHexString(signature));
+
+		// Save Transfer
+		final Transfer transfer = new Transfer();
+		transfer.setDate(new Date());
+		transfer.setFromAccountId(fromAccount.getId());
+		transfer.setToAccountId(toAccount.getId());
+		transfer.setUuid(signature);
+		transfer.setAmount(request.getAmountAsBigDecimal());
+		transfer.setFee(TX_FEE);
+		transfer.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
+		this.transferDao.save(transfer);
+
+		resp.setUuid(Transfer.TX_PREFIX + Base58.encode(transfer.getUuid()));
+
+		log.debug("Saved tx: " + transfer);
+
+		// Update balances
+		BigDecimal newFromBalance = fromAccount.getBalance().subtract(totalAmount);
+		fromAccount.setBalance(newFromBalance);
+		this.accountDao.save(fromAccount);
+
+		log.debug("saved: " + fromAccount);
+
+		BigDecimal newToBalance = toAccount.getBalance().add(request.getAmountAsBigDecimal());
+		toAccount.setBalance(newToBalance);
+		this.accountDao.save(toAccount);
+
+		log.debug("saved: " + toAccount);
+
+		log.debug("Response: " + resp);
 	}
 
 }

@@ -1,4 +1,4 @@
-package io.zdp.node.network.transfer.monitoring.prepare;
+package io.zdp.node.network.transfer.validation.prepare;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
