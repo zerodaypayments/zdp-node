@@ -16,7 +16,7 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
 >
 
-	<context:component-scan base-package="io.zdp" />
+	<context:component-scan base-package="io.zdp.node.network,io.zdp.node.service,io.zdp.node.http,io.zdp.node.dao" />
 
 	<context:property-placeholder
 		location="classpath:/io/zdp/node/app.properties"
@@ -91,7 +91,7 @@
 	<jpa:repositories 
 		entity-manager-factory-ref="entityManagerFactory"
 		transaction-manager-ref="transactionManager" 
-		base-package="io.zdp.node.dao" />
+		base-package="io.zdp.node.dao.jpa" />
 	
 	
 

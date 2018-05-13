@@ -20,10 +20,10 @@ public class TestGenerator {
 
 	int i = 0;
 
-	@Scheduled(fixedDelay = 10)
+	@Scheduled(fixedDelay = 10000)
 	public void run() {
 
-		for (int j = 0; j < 1000; j++) {
+		for (int j = 0; j < 1; j++) {
 			CurrrentTransfer t = new CurrrentTransfer();
 
 			ZDPKeyPair from = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);

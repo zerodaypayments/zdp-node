@@ -1,6 +1,7 @@
 package io.zdp.node.network.transfer.monitoring.prepare;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import org.bouncycastle.util.encoders.Hex;
@@ -16,7 +17,8 @@ public class PrepareTransferResponse implements Serializable {
 
 	public static enum Status {
 		APPROVED, //
-		REJECTED_NOT_VALID, //
+		APPROVED_NO_ACCOUNT_ON_FILE, //
+		REJECTED_REQUEST_NOT_VALID, //
 		REJECTED_ACCOUNT_IN_PROGRESS //
 	}
 
@@ -30,8 +32,38 @@ public class PrepareTransferResponse implements Serializable {
 
 	private byte[] serverSignature;
 
+	private BigDecimal accountBalance;
+
+	private long accountHeight;
+
+	private byte[] accountTransferChainHash;
+
 	public byte[] toSignatureData() {
 		return (responseUuid + transferUuid + status + serverUuid).getBytes(StandardCharsets.UTF_8);
+	}
+
+	public BigDecimal getAccountBalance() {
+		return accountBalance;
+	}
+
+	public void setAccountBalance(BigDecimal accountBalance) {
+		this.accountBalance = accountBalance;
+	}
+
+	public long getAccountHeight() {
+		return accountHeight;
+	}
+
+	public void setAccountHeight(long accountHeight) {
+		this.accountHeight = accountHeight;
+	}
+
+	public byte[] getAccountTransferChainHash() {
+		return accountTransferChainHash;
+	}
+
+	public void setAccountTransferChainHash(byte[] accountTransferChainHash) {
+		this.accountTransferChainHash = accountTransferChainHash;
 	}
 
 	public String getResponseUuid() {

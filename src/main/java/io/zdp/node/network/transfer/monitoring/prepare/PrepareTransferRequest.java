@@ -23,6 +23,8 @@ public class PrepareTransferRequest implements Serializable {
 
 	private String from;
 
+	private byte[] fromUuid;
+
 	private BigDecimal balance;
 
 	private long height;
@@ -36,7 +38,15 @@ public class PrepareTransferRequest implements Serializable {
 	private byte[] serverSignature;
 
 	public byte[] toSignature() {
-		return (requestUuid + transferUuid + from + height + hash + date + serverUuid).getBytes(StandardCharsets.UTF_8);
+		return (requestUuid + transferUuid + from + Hex.toHexString(fromUuid) + height + hash + date + serverUuid).getBytes(StandardCharsets.UTF_8);
+	}
+
+	public byte[] getFromUuid() {
+		return fromUuid;
+	}
+
+	public void setFromUuid(byte[] fromUuid) {
+		this.fromUuid = fromUuid;
 	}
 
 	public String getRequestUuid() {
@@ -138,9 +148,7 @@ public class PrepareTransferRequest implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PrepareTransferRequest [transferUuid=" + transferUuid + ", from=" + from + ", balance=" + balance
-				+ ", height=" + height + ", hash=" + hash + ", date=" + date + ", serverUuid=" + serverUuid
-				+ ", serverSignature=" + Hex.toHexString(serverSignature) + "]";
+		return "PrepareTransferRequest [transferUuid=" + transferUuid + ", from=" + from + ", balance=" + balance + ", height=" + height + ", hash=" + hash + ", date=" + date + ", serverUuid=" + serverUuid + ", serverSignature=" + Hex.toHexString(serverSignature) + "]";
 	}
 
 }

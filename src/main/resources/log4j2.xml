@@ -3,10 +3,7 @@
 <Configuration status="WARN">
 
 	<Appenders>
-		<Console
-			name="console"
-			target="SYSTEM_OUT"
-		>
+		<Console name="console" target="SYSTEM_OUT">
 			<PatternLayout
 				pattern="[%-5level] %d{dd-MMM-yy HH:mm:ss.SSS} %logger{36}.%M() - %msg%n" />
 		</Console>
@@ -15,18 +12,17 @@
 
 	<Loggers>
 
-		<Logger
-			name="org.springframework"
-			level="warn"
-			additivity="false"
-		>
+		<Logger name="org.springframework" level="warn"
+			additivity="false">
 			<AppenderRef ref="console" />
 		</Logger>
 
-		<Root
-			level="DEBUG"
-			additivity="false"
-		>
+		<Logger name="io.zdp" level="debug"
+			additivity="false">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Root level="info" additivity="false">
 			<AppenderRef ref="console" />
 		</Root>
 	</Loggers>
