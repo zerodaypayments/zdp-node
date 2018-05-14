@@ -19,6 +19,7 @@ import io.zdp.node.dao.jpa.AccountDao;
 import io.zdp.node.dao.jpa.TransferDao;
 import io.zdp.node.domain.Account;
 import io.zdp.node.domain.Transfer;
+import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
 
 @Service
@@ -50,12 +51,14 @@ public class TransferService {
 		final TransferResponse resp = new TransferResponse();
 
 		// Validate transfer request
-		validationService.validate(request);
+		final ValidatedTransferRequest enrichedTransferRequest = validationService.validate(request);
 		
 		// Ask Validation network
 		
-
-		save(request, resp);
+		
+		
+		
+		//save(request, resp);
 
 		return resp;
 
@@ -84,7 +87,7 @@ public class TransferService {
 
 		final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
 
-		byte[] signature = request.getTransferUuid();
+		byte[] signature = request.getUniqueTransactionUuid();
 
 		log.debug("txUuid: " + Hex.toHexString(signature));
 

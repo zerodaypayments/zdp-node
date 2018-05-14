@@ -22,6 +22,7 @@ import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.dao.jpa.AccountDao;
 import io.zdp.node.dao.jpa.TransferDao;
 import io.zdp.node.domain.Account;
+import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
 
 @Service
@@ -38,9 +39,12 @@ public class TransferValidationService {
 	private TransferDao transferDao;
 
 	@Transactional(readOnly = true)
-	public void validate(TransferRequest request) throws TransferException {
+	public ValidatedTransferRequest validate(final TransferRequest request) throws TransferException {
 
 		log.debug("Request: " + request);
+
+		final ValidatedTransferRequest enrichedRequest = new ValidatedTransferRequest();
+		enrichedRequest.setFee(TX_FEE);
 
 		try {
 
@@ -77,6 +81,8 @@ public class TransferValidationService {
 
 			final ZDPAccountUuid fromAccountUuid = new ZDPAccountUuid(request.getFrom());
 
+			enrichedRequest.setFromAccountUuid(fromAccountUuid);
+
 			if (false == Arrays.equals(fromAccountUuid.getPublicKeyHash(), Hashing.hashPublicKey(Base58.decode(request.getPublicKey())))) {
 				log.error("Don't think the tx signer is authorized to act on this FROM account");
 				throw new TransferException(TransferResponse.ERROR_TX_SIGNATURE_UNAUTHORIZED);
@@ -84,17 +90,25 @@ public class TransferValidationService {
 
 			final Account fromAccount = this.accountDao.findByUuid(fromAccountUuid.getPublicKeyHash());
 
+			enrichedRequest.setFromAccount(fromAccount);
+
 			if (fromAccount == null) {
 				log.debug("Not found FROM account: " + fromAccountUuid);
 				throw new TransferException(TransferResponse.ERROR_INVALID_FROM_ACCOUNT);
 			}
+
+			final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
+			enrichedRequest.setToAccountUuid(toAccountUuid);
+
+			final Account toAccount = this.accountDao.findByUuid(toAccountUuid.getPublicKeyHash());
+			enrichedRequest.setToAccount(toAccount);
 
 			// Validate signature
 			final String pubKeyCurve = fromAccountUuid.getCurve();
 
 			final PublicKey pubKey = Keys.toPublicKey(Base58.decode(request.getPublicKey()), pubKeyCurve);
 
-			byte[] signature = request.getTransferUuid();
+			byte[] signature = request.getUniqueTransactionUuid();
 
 			// Check if such a tx exists, if so, return
 			if (transferDao.findByUuid(signature) != null) {
@@ -109,6 +123,8 @@ public class TransferValidationService {
 
 				// From should have enough to transfer + fee
 				final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
+
+				enrichedRequest.setTotalAmount(totalAmount);
 
 				log.debug("totalAmount: " + totalAmount);
 
@@ -137,6 +153,10 @@ public class TransferValidationService {
 			throw new TransferException(TransferResponse.ERROR_SYSTEM);
 
 		}
+
+		log.debug("Enriched transfer request: " + enrichedRequest);
+
+		return enrichedRequest;
 
 	}
 

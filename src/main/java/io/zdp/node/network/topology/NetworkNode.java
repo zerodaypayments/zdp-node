@@ -118,6 +118,12 @@ public class NetworkNode implements Serializable {
 	}
 
 	public String getUuid() {
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return uuid;
 	}
 

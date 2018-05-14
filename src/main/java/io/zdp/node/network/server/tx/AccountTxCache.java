@@ -1,4 +1,4 @@
-package io.zdp.node.network.transfer.validation;
+package io.zdp.node.network.server.tx;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +14,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 @Component
-public class AccountsInProgressCache {
+public class AccountTxCache {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 

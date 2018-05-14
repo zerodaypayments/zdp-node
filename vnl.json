@@ -1,1 +1,24 @@
-[ ]
+[ {
+  "hostname" : "localhost",
+  "port" : 9000,
+  "uuid" : "LOCALHOST_9000",
+  "publicKey" : "29XbtNMNkaFX9bVegLJ6b6imBra5AaNN5ZghRKGYaLtPP",
+  "___priv_key":"6kGabk37joxYoDJ9YBKtxK5PJc4Y8y1b5JTdnBrr6Bi4"
+},
+{
+  "hostname" : "localhost",
+  "port" : 9000,
+  "uuid" : "LOCALHOST_9000",
+  "publicKey" : "29XbtNMNkaFX9bVegLJ6b6imBra5AaNN5ZghRKGYaLtPP",
+  "___priv_key":"6kGabk37joxYoDJ9YBKtxK5PJc4Y8y1b5JTdnBrr6Bi4"
+},
+
+{
+  "hostname" : "localhost",
+  "port" : 9000,
+  "uuid" : "LOCALHOST_9000",
+  "publicKey" : "29XbtNMNkaFX9bVegLJ6b6imBra5AaNN5ZghRKGYaLtPP",
+  "___priv_key":"6kGabk37joxYoDJ9YBKtxK5PJc4Y8y1b5JTdnBrr6Bi4"
+}
+
+ ]

@@ -1,20 +1,17 @@
 package io.zdp.node.http;
 
-import javax.annotation.PostConstruct;
-
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.*;
-import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 //@Service
 public class HttpServer {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-//	@PostConstruct
+	//	@PostConstruct
 	public void init() throws Exception {
 
 		Server server = new Server(8080);
@@ -32,7 +29,6 @@ public class HttpServer {
 
 		// Starting the Server
 		server.start();
-		System.out.println("Started!");
 		server.join();
 
 	}

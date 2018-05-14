@@ -93,6 +93,6 @@
 		transaction-manager-ref="transactionManager" 
 		base-package="io.zdp.node.dao.jpa" />
 	
-	
+	<beans:import resource="spring-integration-context.xml"/>
 
 </beans>

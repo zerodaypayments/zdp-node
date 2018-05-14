@@ -2,6 +2,7 @@ package io.zdp.node.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,6 +45,10 @@ public class Account implements Serializable {
 
 	@Column(name = "HASH", columnDefinition = "BINARY(20)", nullable = false)
 	private byte[] transferChainHash;
+
+	public byte[] toHashSignature() {
+		return (Hex.toHexString(uuid) + " " + balance + " " + height + " " + curve + " " + Hex.toHexString(transferChainHash)).getBytes(StandardCharsets.UTF_8);
+	}
 
 	public byte[] getTransferHash() {
 		return transferChainHash;
