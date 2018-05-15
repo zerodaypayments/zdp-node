@@ -13,7 +13,8 @@
 	<int-ip:tcp-connection-factory
 		id="networkNodeServer"
 		type="server"
-		port="9005" />
+		host="${local.node.tcp.server.host}"
+		port="${local.node.tcp.server.port}" />
 
 	<int-ip:tcp-inbound-gateway
 		id="gatewayNetworkNode"
