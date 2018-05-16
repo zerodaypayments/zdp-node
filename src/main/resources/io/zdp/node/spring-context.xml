@@ -45,27 +45,27 @@
 		
 		
 	<!-- Accounts database -->
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+	<bean id="accounts-dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">
-		<property name="driverClass" value="${jdbc.driver}" />
-		<property name="jdbcUrl" value="${jdbc.url}" />
-		<property name="user" value="${jdbc.user}" />
-		<property name="password" value="${jdbc.password}" />
-		<property name="minPoolSize" value="${jdbc.min.pool.size}" />
-		<property name="maxPoolSize" value="${jdbc.max.pool.size}" />
-		<property name="maxIdleTime" value="${jdbc.max.idle.time}" />
+		<property name="driverClass" value="${accounts.jdbc.driver}" />
+		<property name="jdbcUrl" value="${accounts.jdbc.url}" />
+		<property name="user" value="${accounts.jdbc.user}" />
+		<property name="password" value="${accountsjdbc.password}" />
+		<property name="minPoolSize" value="${accounts.jdbc.min.pool.size}" />
+		<property name="maxPoolSize" value="${accounts.jdbc.max.pool.size}" />
+		<property name="maxIdleTime" value="${accounts.jdbc.max.idle.time}" />
 	</bean>
 
-	<bean id="entityManagerFactory"
+	<bean id="accounts-entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		
-		<property name="persistenceUnitName" value="io.zdp.dao" />
+		<property name="persistenceUnitName" value="io.zdp.dao.account" />
 		
-		<property name="dataSource" ref="dataSource" />
+		<property name="dataSource" ref="accounts-dataSource" />
 
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-				<property name="databasePlatform" value="${jdbc.dialect}" />
+				<property name="databasePlatform" value="${accounts.jdbc.dialect}" />
 				<property name="generateDdl" value="true" />
 			</bean>
 		</property>
@@ -76,21 +76,21 @@
 				<prop key="hibernate.format_sql">true</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
 				<prop key="hibernate.use_sql_comments">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
 				<prop key="hibernate.connection.isolation">2</prop>
 			</props>
 		</property>
 	</bean>
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	<bean id="accounts-transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="accounts-entityManagerFactory" />
 	</bean>
 
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<tx:annotation-driven transaction-manager="accounts-transactionManager" />
 	
 	<jpa:repositories 
-		entity-manager-factory-ref="entityManagerFactory"
-		transaction-manager-ref="transactionManager" 
+		entity-manager-factory-ref="accounts-entityManagerFactory"
+		transaction-manager-ref="accounts-transactionManager" 
 		base-package="io.zdp.node.dao.jpa" />
 	
 	<beans:import resource="spring-integration-context.xml"/>
