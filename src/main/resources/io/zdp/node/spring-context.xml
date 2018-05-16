@@ -16,7 +16,7 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
 >
 
-	<context:component-scan base-package="io.zdp.node.network,io.zdp.node.service,io.zdp.node.http,io.zdp.node.dao" />
+	<context:component-scan base-package="io.zdp.node.network, io.zdp.node.service, io.zdp.node.http, io.zdp.node.storage" />
 
 	<context:property-placeholder
 		location="classpath:/io/zdp/node/app.properties"
@@ -42,31 +42,58 @@
 	<task:scheduler
 		id="default-task-scheduler"
 		pool-size="64" />
-		
-		
+
+
 	<!-- Accounts database -->
-	<bean id="accounts-dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
-		destroy-method="close">
-		<property name="driverClass" value="${accounts.jdbc.driver}" />
-		<property name="jdbcUrl" value="${accounts.jdbc.url}" />
-		<property name="user" value="${accounts.jdbc.user}" />
-		<property name="password" value="${accountsjdbc.password}" />
-		<property name="minPoolSize" value="${accounts.jdbc.min.pool.size}" />
-		<property name="maxPoolSize" value="${accounts.jdbc.max.pool.size}" />
-		<property name="maxIdleTime" value="${accounts.jdbc.max.idle.time}" />
+	<bean
+		id="accounts-dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close"
+	>
+		<property
+			name="driverClass"
+			value="${accounts.jdbc.driver}" />
+		<property
+			name="jdbcUrl"
+			value="${accounts.jdbc.url}" />
+		<property
+			name="user"
+			value="${accounts.jdbc.user}" />
+		<property
+			name="password"
+			value="${accountsjdbc.password}" />
+		<property
+			name="minPoolSize"
+			value="${accounts.jdbc.min.pool.size}" />
+		<property
+			name="maxPoolSize"
+			value="${accounts.jdbc.max.pool.size}" />
+		<property
+			name="maxIdleTime"
+			value="${accounts.jdbc.max.idle.time}" />
 	</bean>
 
-	<bean id="accounts-entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		
-		<property name="persistenceUnitName" value="io.zdp.dao.account" />
-		
-		<property name="dataSource" ref="accounts-dataSource" />
+	<bean
+		id="accounts-entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+	>
+
+		<property
+			name="persistenceUnitName"
+			value="io.zdp.dao.account" />
+
+		<property
+			name="dataSource"
+			ref="accounts-dataSource" />
 
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-				<property name="databasePlatform" value="${accounts.jdbc.dialect}" />
-				<property name="generateDdl" value="true" />
+				<property
+					name="databasePlatform"
+					value="${accounts.jdbc.dialect}" />
+				<property
+					name="generateDdl"
+					value="true" />
 			</bean>
 		</property>
 
@@ -82,17 +109,104 @@
 		</property>
 	</bean>
 
-	<bean id="accounts-transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="accounts-entityManagerFactory" />
+	<bean
+		id="accounts-transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager"
+	>
+		<property
+			name="entityManagerFactory"
+			ref="accounts-entityManagerFactory" />
 	</bean>
 
 	<tx:annotation-driven transaction-manager="accounts-transactionManager" />
-	
-	<jpa:repositories 
+
+	<jpa:repositories
 		entity-manager-factory-ref="accounts-entityManagerFactory"
-		transaction-manager-ref="accounts-transactionManager" 
-		base-package="io.zdp.node.dao.jpa" />
-	
-	<beans:import resource="spring-integration-context.xml"/>
+		transaction-manager-ref="accounts-transactionManager"
+		base-package="io.zdp.node.storage.account.dao" />
+
+	<!-- Transfer headers database -->
+	<bean
+		id="transfers-dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close"
+	>
+		<property
+			name="driverClass"
+			value="${transfers.jdbc.driver}" />
+		<property
+			name="jdbcUrl"
+			value="${transfers.jdbc.url}" />
+		<property
+			name="user"
+			value="${transfers.jdbc.user}" />
+		<property
+			name="password"
+			value="${transfersjdbc.password}" />
+		<property
+			name="minPoolSize"
+			value="${transfers.jdbc.min.pool.size}" />
+		<property
+			name="maxPoolSize"
+			value="${transfers.jdbc.max.pool.size}" />
+		<property
+			name="maxIdleTime"
+			value="${transfers.jdbc.max.idle.time}" />
+	</bean>
+
+	<bean
+		id="transfers-entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+	>
+
+		<property
+			name="persistenceUnitName"
+			value="io.zdp.dao.transfer" />
+
+		<property
+			name="dataSource"
+			ref="transfers-dataSource" />
+
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property
+					name="databasePlatform"
+					value="${transfers.jdbc.dialect}" />
+				<property
+					name="generateDdl"
+					value="true" />
+			</bean>
+		</property>
+
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.use_sql_comments">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.connection.isolation">2</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		id="transfers-transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager"
+	>
+		<property
+			name="entityManagerFactory"
+			ref="transfers-entityManagerFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transfers-transactionManager" />
+
+	<jpa:repositories
+		entity-manager-factory-ref="transfers-entityManagerFactory"
+		transaction-manager-ref="transfers-transactionManager"
+		base-package="io.zdp.node.storage.transfer.dao" />
+
+
+	<beans:import resource="spring-integration-context.xml" />
 
 </beans>

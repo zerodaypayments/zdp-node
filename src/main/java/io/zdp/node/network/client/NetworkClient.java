@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
-import io.zdp.node.network.topology.NetworkNodeService;
+import io.zdp.node.service.network.NetworkTopologyService;
 
 /**
  * Ask Validation network nodes on their opinion on the Transfer Request.
@@ -18,7 +18,7 @@ import io.zdp.node.network.topology.NetworkNodeService;
 public class NetworkClient {
 
 	@Autowired
-	private NetworkNodeService networkNodeService;
+	private NetworkTopologyService networkNodeService;
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 

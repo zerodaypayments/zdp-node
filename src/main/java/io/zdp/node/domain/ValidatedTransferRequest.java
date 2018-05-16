@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.crypto.account.ZDPAccountUuid;
+import io.zdp.node.storage.account.domain.Account;
 
 @SuppressWarnings("serial")
 public final class ValidatedTransferRequest implements Serializable {

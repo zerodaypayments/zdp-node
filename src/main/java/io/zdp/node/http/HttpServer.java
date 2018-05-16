@@ -15,12 +15,14 @@ public class HttpServer {
 	public void init() throws Exception {
 
 		Server server = new Server(8080);
+		
+		log.debug("Starting HTTP server on 8080 with context path /zdp");
 
 		HandlerCollection handlers = new HandlerCollection();
 
 		WebAppContext webapp1 = new WebAppContext();
 		webapp1.setResourceBase("/webapp/");
-		webapp1.setContextPath("/api");
+		webapp1.setContextPath("/zdp");
 		webapp1.setDefaultsDescriptor("/webapp/WEB-INF/web.xml");
 		handlers.addHandler(webapp1);
 

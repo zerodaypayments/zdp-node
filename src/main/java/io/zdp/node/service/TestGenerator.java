@@ -9,8 +9,8 @@ import io.zdp.crypto.Base58;
 import io.zdp.crypto.Curves;
 import io.zdp.crypto.Hashing;
 import io.zdp.crypto.key.ZDPKeyPair;
-import io.zdp.node.dao.CurrentTransferDao;
-import io.zdp.node.domain.CurrrentTransfer;
+import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
+import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
 @Component
 public class TestGenerator {
@@ -24,7 +24,7 @@ public class TestGenerator {
 	public void run() {
 
 		for (int j = 0; j < 1; j++) {
-			CurrrentTransfer t = new CurrrentTransfer();
+			CurrentTransfer t = new CurrentTransfer();
 
 			ZDPKeyPair from = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);
 			ZDPKeyPair to = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);

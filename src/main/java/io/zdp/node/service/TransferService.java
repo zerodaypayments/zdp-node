@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import org.bouncycastle.util.encoders.Hex;
+import org.h2.value.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,12 @@ import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.common.StringHelper;
-import io.zdp.node.dao.jpa.AccountDao;
-import io.zdp.node.dao.jpa.TransferDao;
-import io.zdp.node.domain.Account;
-import io.zdp.node.domain.Transfer;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.storage.account.dao.AccountDao;
+import io.zdp.node.storage.account.domain.Account;
+import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
+import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
 @Service
 public class TransferService {
@@ -33,7 +34,7 @@ public class TransferService {
 	private AccountDao accountDao;
 
 	@Autowired
-	private TransferDao transferDao;
+	private CurrentTransferDao transferDao;
 
 	@Autowired
 	private TransferValidationService validationService;
@@ -65,6 +66,7 @@ public class TransferService {
 	}
 
 	private void save(TransferRequest request, final TransferResponse resp) {
+		/*
 		final ZDPAccountUuid fromAccountUuid = new ZDPAccountUuid(request.getFrom());
 		final Account fromAccount = this.accountDao.findByUuid(fromAccountUuid.getPublicKeyHash());
 
@@ -92,10 +94,10 @@ public class TransferService {
 		log.debug("txUuid: " + Hex.toHexString(signature));
 
 		// Save Transfer
-		final Transfer transfer = new Transfer();
-		transfer.setDate(new Date());
-		transfer.setFromAccountId(fromAccount.getId());
-		transfer.setToAccountId(toAccount.getId());
+		final CurrrentTransfer transfer = new CurrrentTransfer();
+		transfer.setDate(System.currentTimeMillis());
+		transfer.setFrom(fromAccount.getUuid());
+		transfer.setTo(toAccount.getId());
 		transfer.setUuid(signature);
 		transfer.setAmount(request.getAmountAsBigDecimal());
 		transfer.setFee(TX_FEE);
@@ -118,7 +120,7 @@ public class TransferService {
 		this.accountDao.save(toAccount);
 
 		log.debug("saved: " + toAccount);
-
+*/
 		log.debug("Response: " + resp);
 	}
 

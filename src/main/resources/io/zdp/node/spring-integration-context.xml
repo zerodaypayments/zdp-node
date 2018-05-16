@@ -10,6 +10,7 @@
 		http://www.springframework.org/schema/integration/ip http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd"
 >
 
+<!-- 
 	<int-ip:tcp-connection-factory
 		id="networkNodeServer"
 		type="server"
@@ -38,5 +39,6 @@
 		id="errorHandler"
 		input-channel="errorChannel"
 		expression="payload.failedMessage.payload + ':' + payload.cause.message" />
-
+ -->
+ 
 </beans>

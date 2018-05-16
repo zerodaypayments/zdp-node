@@ -8,9 +8,17 @@
 		name="io.zdp.dao.account"
 		transaction-type="RESOURCE_LOCAL">
 
-		<class>io.zdp.node.domain.Account</class>
+		<class>io.zdp.node.storage.account.domain.Account</class>
 
 	</persistence-unit>
 	
+	<persistence-unit
+		name="io.zdp.dao.transfer"
+		transaction-type="RESOURCE_LOCAL">
+
+		<class>io.zdp.node.storage.transfer.domain.TransferHeader</class>
+
+	</persistence-unit>
+		
 	
 </persistence>

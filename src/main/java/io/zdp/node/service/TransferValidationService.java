@@ -19,11 +19,11 @@ import io.zdp.crypto.Hashing;
 import io.zdp.crypto.Keys;
 import io.zdp.crypto.Signing;
 import io.zdp.crypto.account.ZDPAccountUuid;
-import io.zdp.node.dao.jpa.AccountDao;
-import io.zdp.node.dao.jpa.TransferDao;
-import io.zdp.node.domain.Account;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.storage.account.dao.AccountDao;
+import io.zdp.node.storage.account.domain.Account;
+import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 
 @Service
 public class TransferValidationService {
@@ -36,7 +36,7 @@ public class TransferValidationService {
 	private AccountDao accountDao;
 
 	@Autowired
-	private TransferDao transferDao;
+	private TransferHeaderDao transferHeaderDao;
 
 	@Transactional(readOnly = true)
 	public ValidatedTransferRequest validate(final TransferRequest request) throws TransferException {
@@ -111,7 +111,7 @@ public class TransferValidationService {
 			byte[] signature = request.getUniqueTransactionUuid();
 
 			// Check if such a tx exists, if so, return
-			if (transferDao.findByUuid(signature) != null) {
+			if (transferHeaderDao.findByUuid(signature) != null) {
 				throw new TransferException(TransferResponse.ERROR_TX_REPLAY);
 			}
 
