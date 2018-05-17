@@ -24,7 +24,7 @@ public class NetworkTopologyService {
 
 	private List<NetworkNode> nodes;
 
-	@Scheduled(initialDelay = 3 * DateUtils.MILLIS_PER_SECOND, fixedDelay = 5 * DateUtils.MILLIS_PER_SECOND)
+	@Scheduled(initialDelay = 3 * DateUtils.MILLIS_PER_SECOND, fixedDelay = 60 * DateUtils.MILLIS_PER_SECOND)
 	public synchronized void init() {
 
 		log.debug("Refreshing network configuration");

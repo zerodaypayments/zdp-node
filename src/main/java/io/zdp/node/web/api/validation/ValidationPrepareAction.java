@@ -6,19 +6,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.zdp.api.model.v1.VoteRequest;
-import io.zdp.api.model.v1.VoteResponse;
-import io.zdp.node.service.validation.VoteService;
+import io.zdp.node.service.validation.PrepareService;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferRequest;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse;
 
 @RestController
-public class ValidationVoteAction {
+public class ValidationPrepareAction {
 
 	@Autowired
-	private VoteService voteService;
+	private PrepareService voteService;
 
 	@RequestMapping(path = Urls.URL_VOTE)
 	@ResponseBody
-	public VoteResponse vote(@RequestBody VoteRequest req) throws Exception {
+	public ValidationPrepareTransferResponse vote(@RequestBody ValidationPrepareTransferRequest req) throws Exception {
 		return voteService.prepare(req);
 	}
 }

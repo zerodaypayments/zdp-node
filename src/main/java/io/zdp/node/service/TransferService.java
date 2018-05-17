@@ -29,6 +29,8 @@ public class TransferService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public static final BigDecimal TX_FEE = BigDecimal.valueOf(0.0001);
+	
+	public static final String TX_PREFIX = "tx";
 
 	@Autowired
 	private AccountDao accountDao;

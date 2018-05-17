@@ -21,7 +21,7 @@ public class CommitService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private ActiveAccountsCache accountsInProgressCache;
+	private LockedAccountsCache accountsInProgressCache;
 
 	@Autowired
 	private NetworkTopologyService networkService;

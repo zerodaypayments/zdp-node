@@ -41,6 +41,10 @@ public class NetworkNode implements Serializable {
 
 	private NetworkNodeType nodeType;
 
+	public String getHttpEndpointUrl() {
+		return null;
+	}
+	
 	public PrivateKey getECPrivateKey() {
 		return priv;
 	}
