@@ -74,7 +74,7 @@ public class HttpServer {
 
 		WebAppContext webapp1 = new WebAppContext();
 		webapp1.setResourceBase("/webapp/");
-		webapp1.setContextPath("/zdp");
+		webapp1.setContextPath("/");
 		webapp1.setDefaultsDescriptor("/webapp/WEB-INF/web.xml");
 
 		//handlers.addHandler(webapp1);
@@ -98,13 +98,11 @@ public class HttpServer {
 
 
         // === jetty-http.xml ===
-        /*
         ServerConnector http = new ServerConnector(server,
                 new HttpConnectionFactory(http_config));
         http.setPort(8080);
         http.setIdleTimeout(30000);
         server.addConnector(http);
-        */
 
 
         // === jetty-https.xml ===
@@ -153,6 +151,7 @@ public class HttpServer {
         StatisticsHandler stats = new StatisticsHandler();
         stats.setHandler(server.getHandler());
         server.setHandler(stats);
+        
         ServerConnectionStatistics.addToAllConnectors(server);
 
         // === jetty-requestlog.xml ===

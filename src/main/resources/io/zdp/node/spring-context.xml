@@ -208,5 +208,5 @@
 
 
 	<beans:import resource="spring-integration-context.xml" />
-
+	
 </beans>

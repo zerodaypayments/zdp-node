@@ -43,6 +43,8 @@ public class AccountService {
 			addr = new Account();
 			addr.setBalance(BigDecimal.valueOf(100));
 			addr.setUuid(accountUuid);
+			addr.setHeight(0);
+			addr.setTransferHash(new byte[] {});
 			addr.setCurve(Curves.DEFAULT_CURVE_INDEX);
 			this.accountDao.save(addr);
 

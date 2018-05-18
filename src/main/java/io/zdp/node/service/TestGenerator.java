@@ -1,16 +1,10 @@
 package io.zdp.node.service;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import io.zdp.crypto.Base58;
-import io.zdp.crypto.Curves;
-import io.zdp.crypto.Hashing;
-import io.zdp.crypto.key.ZDPKeyPair;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
-import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
 @Component
 public class TestGenerator {
@@ -22,14 +16,14 @@ public class TestGenerator {
 
 	@Scheduled(fixedDelay = 10000)
 	public void run() {
-
+/*
 		for (int j = 0; j < 1; j++) {
 			CurrentTransfer t = new CurrentTransfer();
 
 			ZDPKeyPair from = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);
 			ZDPKeyPair to = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);
 
-			t.setAmount(RandomUtils.nextLong(0, Long.MAX_VALUE));
+			t.setAmount( RandomUtils.nextLong(0, Long.MAX_VALUE));
 			t.setDate(System.currentTimeMillis());
 			t.setFee(1000);
 			t.setFrom(from.getZDPAccount().getUuid());
@@ -41,7 +35,7 @@ public class TestGenerator {
 		}
 
 		System.out.println(i);
-
+*/
 	}
 
 }

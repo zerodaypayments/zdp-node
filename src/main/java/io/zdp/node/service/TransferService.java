@@ -1,9 +1,7 @@
 package io.zdp.node.service;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.h2.value.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.crypto.Base58;
-import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.common.StringHelper;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.network.validation.ValidationNetworkClient;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
+import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 import io.zdp.node.storage.transfer.domain.CurrentTransfer;
+import io.zdp.node.storage.transfer.domain.TransferHeader;
 
 @Service
 public class TransferService {
@@ -29,7 +29,7 @@ public class TransferService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public static final BigDecimal TX_FEE = BigDecimal.valueOf(0.0001);
-	
+
 	public static final String TX_PREFIX = "tx";
 
 	@Autowired
@@ -39,14 +39,19 @@ public class TransferService {
 	private CurrentTransferDao transferDao;
 
 	@Autowired
+	private TransferHeaderDao transferHeaderDao;
+
+	@Autowired
 	private TransferValidationService validationService;
+
+	@Autowired
+	private ValidationNetworkClient validationNetworkClient;
 
 	/**
 	 * @param request
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional(readOnly = false)
 	public TransferResponse transfer(TransferRequest request) throws TransferException {
 
 		log.debug("Request: " + request);
@@ -55,75 +60,70 @@ public class TransferService {
 
 		// Validate transfer request
 		final ValidatedTransferRequest enrichedTransferRequest = validationService.validate(request);
-		
+
 		// Ask Validation network
-		
-		
-		
-		
-		//save(request, resp);
+		boolean prepared = validationNetworkClient.prepare(enrichedTransferRequest);
+
+		if (prepared) {
+
+			save(enrichedTransferRequest, resp);
+
+			validationNetworkClient.commit(enrichedTransferRequest);
+
+		} else {
+
+			resp.setError(TransferResponse.ERROR_REJECTED);
+
+			validationNetworkClient.rollback(enrichedTransferRequest);
+
+		}
 
 		return resp;
 
 	}
 
-	private void save(TransferRequest request, final TransferResponse resp) {
-		/*
-		final ZDPAccountUuid fromAccountUuid = new ZDPAccountUuid(request.getFrom());
-		final Account fromAccount = this.accountDao.findByUuid(fromAccountUuid.getPublicKeyHash());
+	@Transactional(readOnly = false)
+	private void save(ValidatedTransferRequest req, final TransferResponse resp) {
 
-		final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
+		// Save transfer header
+		TransferHeader th = new TransferHeader();
+		th.setUuid(req.getTransactionSignature());
+		this.transferHeaderDao.save(th);
 
-		Account toAccount = this.accountDao.findByUuid(toAccountUuid.getPublicKeyHash());
-
-		if (toAccount == null) {
-
-			log.warn("Not found TO account: " + request.getTo());
-
-			toAccount = new Account();
-			toAccount.setBalance(BigDecimal.ZERO);
-			toAccount.setCurve(toAccountUuid.getCurveAsIndex());
-			toAccount.setUuid(toAccountUuid.getPublicKeyHash());
-
-			this.accountDao.save(toAccount);
-
-		}
-
-		final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
-
-		byte[] signature = request.getUniqueTransactionUuid();
-
-		log.debug("txUuid: " + Hex.toHexString(signature));
-
-		// Save Transfer
-		final CurrrentTransfer transfer = new CurrrentTransfer();
-		transfer.setDate(System.currentTimeMillis());
-		transfer.setFrom(fromAccount.getUuid());
-		transfer.setTo(toAccount.getId());
-		transfer.setUuid(signature);
-		transfer.setAmount(request.getAmountAsBigDecimal());
-		transfer.setFee(TX_FEE);
-		transfer.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
+		// Save Current Transfer
+		final CurrentTransfer transfer = new CurrentTransfer();
+		transfer.setUuid(req.getTransactionUuid());
+		transfer.setAmount(req.getAmount().toPlainString());
+		transfer.setDate(req.getTime());
+		transfer.setFrom(req.getFromAccountUuid().getUuid());
+		transfer.setTo(req.getToAccountUuid().getUuid());
+		transfer.setMemo(StringHelper.cleanUpMemo(req.getMemo()));
+		transfer.setFee(req.getFee().toPlainString());
 		this.transferDao.save(transfer);
 
-		resp.setUuid(Transfer.TX_PREFIX + Base58.encode(transfer.getUuid()));
+		resp.setUuid(req.getTransactionUuid());
 
 		log.debug("Saved tx: " + transfer);
 
 		// Update balances
-		BigDecimal newFromBalance = fromAccount.getBalance().subtract(totalAmount);
-		fromAccount.setBalance(newFromBalance);
-		this.accountDao.save(fromAccount);
+		Account from = this.accountDao.findByUuid(req.getFromAccountUuid().getPublicKeyHash());
+		Account to = this.accountDao.findByUuid(req.getToAccountUuid().getPublicKeyHash());
 
-		log.debug("saved: " + fromAccount);
+		BigDecimal newFromBalance = from.getBalance().subtract(req.getTotalAmount());
+		from.setBalance(newFromBalance);
 
-		BigDecimal newToBalance = toAccount.getBalance().add(request.getAmountAsBigDecimal());
-		toAccount.setBalance(newToBalance);
-		this.accountDao.save(toAccount);
+		this.accountDao.save(from);
 
-		log.debug("saved: " + toAccount);
-*/
+		log.debug("saved new from balance: " + from);
+
+		BigDecimal newToBalance = to.getBalance().add(req.getAmount());
+		to.setBalance(newToBalance);
+		this.accountDao.save(to);
+
+		log.debug("saved new to balance: " + to);
+
 		log.debug("Response: " + resp);
+
 	}
 
 }

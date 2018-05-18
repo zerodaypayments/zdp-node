@@ -19,6 +19,7 @@ import io.zdp.crypto.Hashing;
 import io.zdp.crypto.Keys;
 import io.zdp.crypto.Signing;
 import io.zdp.crypto.account.ZDPAccountUuid;
+import io.zdp.node.common.StringHelper;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
 import io.zdp.node.storage.account.dao.AccountDao;
@@ -45,6 +46,7 @@ public class TransferValidationService {
 
 		final ValidatedTransferRequest enrichedRequest = new ValidatedTransferRequest();
 		enrichedRequest.setFee(TX_FEE);
+		enrichedRequest.setTime(System.currentTimeMillis());
 
 		try {
 
@@ -110,6 +112,8 @@ public class TransferValidationService {
 
 			byte[] signature = request.getUniqueTransactionUuid();
 
+			enrichedRequest.setTransactionUuid(Base58.encode(signature));
+
 			// Check if such a tx exists, if so, return
 			if (transferHeaderDao.findByUuid(signature) != null) {
 				throw new TransferException(TransferResponse.ERROR_TX_REPLAY);
@@ -124,13 +128,17 @@ public class TransferValidationService {
 				// From should have enough to transfer + fee
 				final BigDecimal totalAmount = request.getAmountAsBigDecimal().add(TX_FEE);
 
-				enrichedRequest.setTotalAmount(totalAmount);
+				enrichedRequest.setAmount(request.getAmountAsBigDecimal());
 
 				log.debug("totalAmount: " + totalAmount);
 
 				if (fromAccount.getBalance().compareTo(totalAmount) < 0) {
 					throw new TransferException(TransferResponse.ERROR_INSUFFICIENT_FUNDS);
 				}
+
+				enrichedRequest.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
+				enrichedRequest.setTransactionSignature(signature);
+				enrichedRequest.setTransactionUuid("tx" + Base58.encode(signature) + "z");
 
 			} else {
 

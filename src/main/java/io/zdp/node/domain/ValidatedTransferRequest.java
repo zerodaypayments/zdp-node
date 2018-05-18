@@ -2,6 +2,7 @@ package io.zdp.node.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.crypto.account.ZDPAccountUuid;
@@ -20,11 +21,49 @@ public final class ValidatedTransferRequest implements Serializable {
 
 	private Account toAccount;
 
-	private BigDecimal totalAmount;
+	private BigDecimal amount;
 
 	private BigDecimal fee;
 
+	private byte[] transactionSignature;
+
 	private String transactionUuid;
+
+	private String memo;
+
+	private long time;
+
+	public byte[] getTransactionSignature() {
+		return transactionSignature;
+	}
+
+	public void setTransactionSignature(byte[] transactionSignature) {
+		this.transactionSignature = transactionSignature;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public BigDecimal getAmount() {
+		return amount.setScale(8, RoundingMode.HALF_DOWN);
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
 
 	public String getTransactionUuid() {
 		return transactionUuid;
@@ -75,15 +114,11 @@ public final class ValidatedTransferRequest implements Serializable {
 	}
 
 	public BigDecimal getTotalAmount() {
-		return totalAmount;
-	}
-
-	public void setTotalAmount(BigDecimal totalAmount) {
-		this.totalAmount = totalAmount;
+		return amount.add(fee).setScale(8, RoundingMode.HALF_DOWN);
 	}
 
 	public BigDecimal getFee() {
-		return fee;
+		return fee.setScale(8, RoundingMode.HALF_DOWN);
 	}
 
 	public void setFee(BigDecimal fee) {
@@ -92,7 +127,7 @@ public final class ValidatedTransferRequest implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ValidatedTransferRequest [request=" + request + ", fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", fromAccount=" + fromAccount + ", toAccount=" + toAccount + ", totalAmount=" + totalAmount + ", fee=" + fee + "]";
+		return "ValidatedTransferRequest [getTransactionUuid()=" + getTransactionUuid() + ", getRequest()=" + getRequest() + ", getFromAccountUuid()=" + getFromAccountUuid() + ", getToAccountUuid()=" + getToAccountUuid() + ", getFromAccount()=" + getFromAccount() + ", getToAccount()=" + getToAccount() + ", getTotalAmount()=" + getTotalAmount() + ", getFee()=" + getFee() + "]";
 	}
 
 }

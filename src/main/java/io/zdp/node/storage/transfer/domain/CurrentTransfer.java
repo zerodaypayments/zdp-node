@@ -15,9 +15,9 @@ public class CurrentTransfer implements Serializable {
 
 	private long date;
 
-	private long amount;
+	private String amount;
 
-	private int fee;
+	private String fee;
 
 	private String memo = StringUtils.EMPTY;
 
@@ -33,9 +33,9 @@ public class CurrentTransfer implements Serializable {
 		sb.append("|");
 		sb.append(StringUtils.rightPad(Long.toString(date), 20, StringUtils.SPACE));
 		sb.append("|");
-		sb.append(StringUtils.rightPad(Long.toString(amount), 20, StringUtils.SPACE));
+		sb.append(StringUtils.rightPad(amount, 20, StringUtils.SPACE));
 		sb.append("|");
-		sb.append(StringUtils.rightPad(Integer.toString(fee), 11, StringUtils.SPACE));
+		sb.append(StringUtils.rightPad(fee, 8, StringUtils.SPACE));
 		sb.append("|");
 		sb.append(memo);
 
@@ -75,19 +75,19 @@ public class CurrentTransfer implements Serializable {
 		this.date = date;
 	}
 
-	public long getAmount() {
+	public String getAmount() {
 		return amount;
 	}
 
-	public void setAmount(long amount) {
+	public void setAmount(String amount) {
 		this.amount = amount;
 	}
 
-	public int getFee() {
+	public String getFee() {
 		return fee;
 	}
 
-	public void setFee(int fee) {
+	public void setFee(String fee) {
 		this.fee = fee;
 	}
 
