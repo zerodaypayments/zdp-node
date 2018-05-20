@@ -2,7 +2,6 @@ package io.zdp.node.service;
 
 import java.math.BigDecimal;
 
-import org.h2.value.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.api.model.v1.TransferResponse;
-import io.zdp.crypto.Base58;
 import io.zdp.node.common.StringHelper;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.error.TransferException;
@@ -48,9 +46,7 @@ public class TransferService {
 	private ValidationNetworkClient validationNetworkClient;
 
 	/**
-	 * @param request
-	 * @return
-	 * @throws Exception
+	 * Make a transfer
 	 */
 	public TransferResponse transfer(TransferRequest request) throws TransferException {
 

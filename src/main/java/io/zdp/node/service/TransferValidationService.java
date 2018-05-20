@@ -150,7 +150,7 @@ public class TransferValidationService {
 
 		} catch (TransferException ex) {
 
-			log.error("Error: ", ex);
+			log.error("Error: " + ex.getError());
 
 			throw ex;
 

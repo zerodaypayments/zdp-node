@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.zdp.node.service.NodeConfigurationService;
 import io.zdp.node.service.network.NetworkTopologyService;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
+import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
 import io.zdp.node.storage.transfer.domain.TransferHeader;
 import io.zdp.node.storage.transfer.service.TransferHeaderService;
 import io.zdp.node.web.api.validation.model.ValidationCommitRequest;
-import io.zdp.node.web.api.validation.model.ValidationCommitResponse;
 
 @Service
 public class CommitService {
@@ -33,16 +32,36 @@ public class CommitService {
 	private TransferHeaderService transferHeaderService;
 
 	@Autowired
-	private NodeConfigurationService nodeConfigService;
+	private CurrentTransferDao currentTransferDao;
 
 	@Transactional(readOnly = false)
 	public boolean commit(ValidationCommitRequest req) {
 
-		updateAccount(req);
+		log.debug("Commit request: " + req);
+
+		// Validate request (otherwise malicious actors can start locking accounts)
+		if (false == networkService.isValidServerRequest(req.getServerUuid(), req.toHashData(), req.getRequestSignature())) {
+			return false;
+		}
+
+		updateAccounts(req);
 
 		saveTransferHeader(req);
 
+		saveCurrentTransfer(req);
+
+		accountsInProgressCache.remove(req.getFromAccount().getUuid());
+		accountsInProgressCache.remove(req.getToAccount().getUuid());
+
 		return true;
+
+	}
+
+	private void saveCurrentTransfer(ValidationCommitRequest req) {
+
+		log.debug("saveCurrentTransfer: " + req.getFromAccount());
+
+		currentTransferDao.save(req.getTransfer());
 
 	}
 
@@ -50,21 +69,47 @@ public class CommitService {
 		transferHeaderService.save(new TransferHeader(req.getTransferSignature()));
 	}
 
-	private void updateAccount(ValidationCommitRequest req) {
-		// Update or save account;
-		Account a = accountService.findByUuid(req.getAccount().getUuidAsBytes());
+	private void updateAccounts(ValidationCommitRequest req) {
 
-		if (a == null) {
-			a = new Account();
-			a.setCurve(req.getAccount().getCurve());
-			a.setUuid(req.getAccount().getUuidAsBytes());
+		{
+			// Update or save FROM account;
+			Account from = accountService.findByUuid(req.getFromAccount().getUuidAsBytes());
+
+			if (from == null) {
+				from = new Account();
+				from.setCurve(req.getFromAccount().getCurve());
+				from.setUuid(req.getToAccount().getUuidAsBytes());
+			}
+
+			from.setBalance(req.getFromAccount().getBalance());
+			from.setHeight(req.getFromAccount().getHeight());
+			from.setTransferHash(req.getFromAccount().getTransferHash());
+
+			log.debug("Updated FROM account: " + req.getFromAccount());
+
+			this.accountService.save(from);
+
 		}
 
-		a.setBalance(req.getAccount().getBalance());
-		a.setHeight(req.getAccount().getHeight());
-		a.setTransferHash(req.getAccount().getTransferHash());
+		{
+			// to account
+			Account to = accountService.findByUuid(req.getToAccount().getUuidAsBytes());
 
-		this.accountService.save(a);
+			if (to == null) {
+				to = new Account();
+				to.setCurve(req.getToAccount().getCurve());
+				to.setUuid(req.getToAccount().getUuidAsBytes());
+			}
+
+			to.setBalance(req.getToAccount().getBalance());
+			to.setHeight(req.getToAccount().getHeight());
+			to.setTransferHash(req.getToAccount().getTransferHash());
+
+			log.debug("Updated TO account: " + req.getToAccount());
+
+			this.accountService.save(to);
+		}
+
 	}
 
 }

@@ -74,4 +74,20 @@ public class PrepareService {
 
 	}
 
+	public boolean rollback(ValidationPrepareTransferRequest req) {
+
+		log.debug("rollback transfer: " + req);
+
+		// Validate request (otherwise malicious actors can start unlocking accounts)
+		if (false == networkService.isValidServerRequest(req.getServerUuid(), req.toHashData(), req.getSignedRequest())) {
+			return false;
+		}
+
+		accountsInProgressCache.remove(req.getFromAccountUuid());
+		accountsInProgressCache.remove(req.getToAccountUuid());
+
+		return true;
+
+	}
+
 }

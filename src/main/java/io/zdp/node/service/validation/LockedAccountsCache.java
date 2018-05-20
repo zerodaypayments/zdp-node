@@ -54,11 +54,8 @@ public class LockedAccountsCache {
 	}
 
 	public void remove(String accountUuid) {
-
-		if (inProgress(accountUuid)) {
-			cache.invalidate(accountUuid);
-			log.debug("Account removed: " + accountUuid);
-		}
+		cache.invalidate(accountUuid);
+		log.debug("Account removed: " + accountUuid);
 	}
 
 }

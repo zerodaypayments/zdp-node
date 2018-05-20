@@ -120,9 +120,11 @@ public class ValidationNetworkClient {
 				if (f.isDone()) {
 
 					try {
+
 						HttpResponse response = f.get();
 
 						System.out.println(IOUtils.toString(response.getEntity().getContent()));
+
 					} catch (UnsupportedOperationException | InterruptedException | ExecutionException | IOException e) {
 						log.error("Error: ", e);
 					}
@@ -135,40 +137,9 @@ public class ValidationNetworkClient {
 			}
 		}
 
+		log.debug("Finished voting");
+
 	}
-	/*
-		{
-	
-			
-	
-			List<Future<HttpResponse>> futures = new ArrayList<>();
-	
-			for (int i = 0; i < 6; i++) {
-	
-				futures.add(client.execute(request, null));
-	
-				//Thread.sleep(RandomUtils.nextLong(1000, 5000));
-			}
-	
-			while (futures.isEmpty() == false)
-				for (Future<HttpResponse> f : futures) {
-	
-					if (f.isDone()) {
-	
-						HttpResponse response = f.get();
-	
-						System.out.println(IOUtils.toString(response.getEntity().getContent()));
-	
-						futures.remove(f);
-						break;
-	
-					}
-	
-				}
-	
-			client.close();
-		}
-	*/
 
 	public void rollback(ValidatedTransferRequest enrichedTransferRequest) {
 		// TODO Auto-generated method stub

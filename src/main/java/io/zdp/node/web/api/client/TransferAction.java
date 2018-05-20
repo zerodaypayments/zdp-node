@@ -26,17 +26,25 @@ public class TransferAction {
 	@RequestMapping(path = Urls.URL_GET_TX_FEE)
 	@ResponseBody
 	public GetFeeResponse getFee() {
+
 		return new GetFeeResponse(TransferService.TX_FEE.toPlainString());
+
 	}
 
 	@RequestMapping(path = Urls.URL_TRANSFER)
 	@ResponseBody
 	public TransferResponse transfer(@RequestBody TransferRequest request) {
+
 		try {
+
 			return txService.transfer(request);
+
 		} catch (TransferException e) {
-			log.error("Error: ", e);
+
+			log.error("Error: " + e.getError());
+
 			return TransferResponse.error(e.getError());
+
 		}
 	}
 
