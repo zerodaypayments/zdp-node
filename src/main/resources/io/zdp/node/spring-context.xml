@@ -61,7 +61,7 @@
 			value="${accounts.jdbc.user}" />
 		<property
 			name="password"
-			value="${accountsjdbc.password}" />
+			value="${accounts.jdbc.password}" />
 		<property
 			name="minPoolSize"
 			value="${accounts.jdbc.min.pool.size}" />
@@ -142,7 +142,7 @@
 			value="${transfers.jdbc.user}" />
 		<property
 			name="password"
-			value="${transfersjdbc.password}" />
+			value="${transfers.jdbc.password}" />
 		<property
 			name="minPoolSize"
 			value="${transfers.jdbc.min.pool.size}" />
