@@ -20,6 +20,8 @@ import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 import io.zdp.node.storage.transfer.domain.TransferHeader;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse.Status;
 
 @Service
 public class TransferService {
@@ -58,9 +60,9 @@ public class TransferService {
 		final ValidatedTransferRequest enrichedTransferRequest = validationService.validate(request);
 
 		// Ask Validation network
-		boolean prepared = validationNetworkClient.prepare(enrichedTransferRequest);
+		ValidationPrepareTransferResponse prepared = validationNetworkClient.prepare(enrichedTransferRequest);
 
-		if (prepared) {
+		if (prepared.getStatus().equals(Status.APPROVED)) {
 
 			save(enrichedTransferRequest, resp);
 

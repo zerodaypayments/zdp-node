@@ -2,31 +2,40 @@ package io.zdp.node.network.validation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.nio.reactor.IOReactorException;
-import org.eclipse.jetty.util.log.Log;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import io.zdp.api.model.v1.TransferRequest;
+import io.zdp.crypto.Signing;
 import io.zdp.node.domain.ValidatedTransferRequest;
+import io.zdp.node.service.NodeConfigurationService;
+import io.zdp.node.service.network.NetworkNode;
 import io.zdp.node.service.network.NetworkTopologyService;
 import io.zdp.node.web.api.validation.Urls;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferRequest;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse;
+import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse.Status;
 
 /**
  * Ask Validation network nodes for the 
@@ -37,117 +46,141 @@ public class ValidationNetworkClient {
 	@Autowired
 	private NetworkTopologyService networkNodeService;
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private Logger log = LoggerFactory.getLogger( this.getClass() );
 
-	private CloseableHttpAsyncClient client;
+	private static final int HTTP_CLIENT_MAX_PER_ROUTE = 2000;
+
+	private static final int HTTP_CLIENT_MAX_TOTAL = 20000;
+
+	private static final int HTTP_TIMEOUT = 2000;
+
+	private RestTemplate restTemplate;
+
+	private final ExecutorService rollbackThreadPool = Executors.newFixedThreadPool( 32 );
+
+	@Autowired
+	private NodeConfigurationService nodeConfig;
 
 	@PostConstruct
-	public void start() throws IOReactorException {
+	public void init ( ) {
 
-		PoolingNHttpClientConnectionManager poolingConnManager = new PoolingNHttpClientConnectionManager(new DefaultConnectingIOReactor());
+		synchronized ( restTemplate ) {
 
-		poolingConnManager.setDefaultMaxPerRoute(16);
+			close();
 
-		client = HttpAsyncClients.custom().setConnectionManager(poolingConnManager).build();
+			restTemplate = new RestTemplate( Collections.singletonList( new MappingJackson2HttpMessageConverter() ) );
 
-		client.start();
+			HttpClient httpClient = HttpClientBuilder.create() //
+					.setMaxConnTotal( HTTP_CLIENT_MAX_TOTAL ) //
+					.setMaxConnPerRoute( HTTP_CLIENT_MAX_PER_ROUTE ) //
+					.build();
 
+			restTemplate.setRequestFactory( new HttpComponentsClientHttpRequestFactory( httpClient ) );
+
+		}
 	}
 
 	/**
 	 * True for yes/no for this transfer 
 	 */
-	public boolean prepare(ValidatedTransferRequest req) {
+	public ValidationPrepareTransferResponse prepare ( ValidatedTransferRequest req ) {
 
-		log.debug("Prepare " + req);
+		log.debug( "Prepare " + req );
 
-		if (false == networkNodeService.getNodes().isEmpty()) {
+		ValidationPrepareTransferResponse resp;
 
-			ask(req);
+		if ( false == networkNodeService.getNodes().isEmpty() ) {
 
-			log.debug("TEST MODE, REJECT TRANSFER");
-
-			return false;
+			resp = ask( req );
 
 		} else {
 
-			log.debug("I am the only validation node, I am very agreeable");
+			log.debug( "I am the only validation node, I am very agreeable" );
 
-			return true;
+			resp = new ValidationPrepareTransferResponse();
+			resp.setFromAccount( req.getFromAccount() );
+			resp.setToAccount( req.getToAccount() );
+			resp.setStatus( Status.APPROVED );
+
 		}
+
+		return resp;
 
 	}
 
 	@PreDestroy
-	public void close() {
+	public void close ( ) {
 
-		if (client != null) {
+	}
 
-			try {
-				client.close();
-			} catch (IOException e) {
-				log.error("Error: ", e);
-			}
+	private ValidationPrepareTransferResponse ask ( ValidatedTransferRequest req ) {
 
+		final ValidationPrepareTransferResponse resp = new ValidationPrepareTransferResponse();
+
+		final List < NetworkNode > nodes = networkNodeService.getNodes();
+
+		// Pool for the vote call
+		final ExecutorService threadPool = Executors.newFixedThreadPool( nodes.size() );
+
+		// Prepare request
+		final ValidationPrepareTransferRequest restRequest = toRequest( req );
+
+		try {
+			restRequest.setSignedRequest( Signing.sign( nodeConfig.getNode().getECPrivateKey(), restRequest.toHashData() ) );
+		} catch ( Exception e ) {
+			log.error( "Error: ", e );
 		}
 
-	}
+		// Create tasks
+		final List < PrepareTask > tasks = new ArrayList<>( networkNodeService.getNodes().size() );
 
-	private void ask(ValidatedTransferRequest req) {
+		// Run them in parallel
+		networkNodeService.getNodes().forEach( n -> {
 
-		List<Future<HttpResponse>> futures = new ArrayList<>();
+			log.debug( "Validation node: " + n.getUuid() );
 
-		networkNodeService.getNodes().forEach(n -> {
+			PrepareTask task = new PrepareTask( n.getBaseUrl() + Urls.URL_VOTE, restTemplate, restRequest );
 
-			log.debug("Validation node: " + n.getUuid());
+			tasks.add( task );
 
-			HttpGet request = new HttpGet("https://" + n.getHostname() + ":" + n.getPort() + Urls.URL_VOTE);
+			threadPool.submit( task );
 
-			log.debug("request: " + request.getURI());
+		} );
 
-			// if to account is empty and no nodes know about it, reject
-
-			// go with the latest block hash
-
-			futures.add(client.execute(request, null));
-
-		});
-
-		while (futures.isEmpty() == false) {
-
-			for (Future<HttpResponse> f : futures) {
-
-				if (f.isDone()) {
-
-					try {
-
-						HttpResponse response = f.get();
-
-						System.out.println(IOUtils.toString(response.getEntity().getContent()));
-
-					} catch (UnsupportedOperationException | InterruptedException | ExecutionException | IOException e) {
-						log.error("Error: ", e);
-					}
-
-					futures.remove(f);
-					break;
-
-				}
-
-			}
+		try {
+			threadPool.awaitTermination( 5, TimeUnit.SECONDS );
+		} catch ( InterruptedException e ) {
+			log.error( "Error: ", e );
 		}
 
-		log.debug("Finished voting");
+		log.debug( "Finished voting: " );
+
+		for ( PrepareTask task : tasks ) {
+			log.debug( "Response:  " + task.getResponse() );
+		}
+
+		return resp;
 
 	}
 
-	public void rollback(ValidatedTransferRequest enrichedTransferRequest) {
-		// TODO Auto-generated method stub
+	private ValidationPrepareTransferRequest toRequest ( ValidatedTransferRequest req ) {
+		final ValidationPrepareTransferRequest restRequest = new ValidationPrepareTransferRequest();
+		restRequest.setFromAccountUuid( req.getFromAccountUuid().getUuid() );
+		restRequest.setRequestUuid( UUID.randomUUID().toString() );
+		restRequest.setServerUuid( nodeConfig.getNode().getUuid() );
+		restRequest.setToAccountUuid( req.getFromAccountUuid().getUuid() );
+		restRequest.setTransferUuid( req.getTransactionUuid() );
+		return restRequest;
+	}
+
+	public void commit ( ValidatedTransferRequest enrichedTransferRequest ) {
 
 	}
 
-	public void commit(ValidatedTransferRequest enrichedTransferRequest) {
-		// TODO Auto-generated method stub
+	public void rollback ( ValidatedTransferRequest enrichedTransferRequest ) {
+
+		// 	submit to rollbackThreadPool
 
 	}
+
 }

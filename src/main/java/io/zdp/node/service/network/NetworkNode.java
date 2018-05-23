@@ -44,7 +44,7 @@ public class NetworkNode implements Serializable {
 	public String getHttpEndpointUrl() {
 		return null;
 	}
-	
+
 	public PrivateKey getECPrivateKey() {
 		return priv;
 	}
@@ -53,7 +53,7 @@ public class NetworkNode implements Serializable {
 		return privateKey;
 	}
 
-	public void setPrivateKey(String privateKey) {
+	public void setPrivateKey( String privateKey ) {
 
 		this.privateKey = privateKey;
 
@@ -66,7 +66,7 @@ public class NetworkNode implements Serializable {
 		return nodeType;
 	}
 
-	public void setNodeType(NetworkNodeType nodeType) {
+	public void setNodeType( NetworkNodeType nodeType ) {
 		this.nodeType = nodeType;
 	}
 
@@ -78,7 +78,7 @@ public class NetworkNode implements Serializable {
 		return height;
 	}
 
-	public void setHeight(long height) {
+	public void setHeight( long height ) {
 		this.height = height;
 	}
 
@@ -86,7 +86,7 @@ public class NetworkNode implements Serializable {
 		return blockChainHash;
 	}
 
-	public void setBlockChainHash(String blockChainHash) {
+	public void setBlockChainHash( String blockChainHash ) {
 		this.blockChainHash = blockChainHash;
 	}
 
@@ -94,7 +94,7 @@ public class NetworkNode implements Serializable {
 		return publicKey;
 	}
 
-	public void setPublicKey(String publicKey) {
+	public void setPublicKey( String publicKey ) {
 
 		this.publicKey = publicKey;
 
@@ -109,7 +109,7 @@ public class NetworkNode implements Serializable {
 		return hostname;
 	}
 
-	public void setHostname(String hostname) {
+	public void setHostname( String hostname ) {
 		this.hostname = hostname;
 	}
 
@@ -117,12 +117,12 @@ public class NetworkNode implements Serializable {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort( int port ) {
 		this.port = port;
 	}
 
 	public String getUuid() {
-		
+
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -131,7 +131,7 @@ public class NetworkNode implements Serializable {
 		return uuid;
 	}
 
-	public void setUuid(String uuid) {
+	public void setUuid( String uuid ) {
 		this.uuid = uuid;
 	}
 
@@ -149,7 +149,7 @@ public class NetworkNode implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals( Object obj ) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -163,6 +163,10 @@ public class NetworkNode implements Serializable {
 		} else if (!uuid.equals(other.uuid))
 			return false;
 		return true;
+	}
+
+	public String getBaseUrl() {
+		return "https://" + hostname + ":" + port;
 	}
 
 }

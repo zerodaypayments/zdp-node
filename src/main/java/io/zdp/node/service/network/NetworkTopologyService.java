@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zdp.crypto.Signing;
+import io.zdp.node.network.validation.ValidationNetworkClient;
 
 @Component
 public class NetworkTopologyService {
@@ -23,6 +25,9 @@ public class NetworkTopologyService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private List<NetworkNode> nodes;
+	
+	@Autowired
+	private ValidationNetworkClient validationNetworkClient;
 
 	@Scheduled(initialDelay = 3 * DateUtils.MILLIS_PER_SECOND, fixedDelay = 60 * DateUtils.MILLIS_PER_SECOND)
 	public synchronized void init() {
@@ -48,6 +53,8 @@ public class NetworkTopologyService {
 				}
 
 				log.debug("Loaded/reloaded list of validation nodes: " + nodes);
+				
+				validationNetworkClient.init();
 
 			} else {
 				log.debug("No change in network topology");
