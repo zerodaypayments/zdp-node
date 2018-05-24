@@ -13,8 +13,8 @@
 		</Console>
 		
 		<RollingFile name="file">
-			<FileName>${user.home}/.zdp/logs/node.log</FileName>
-			<FilePattern>${user.home}/.zdp/logs/%d{yyyy-MM-dd-hh-mm}.log.zip</FilePattern>
+			<FileName>${sys:user.home}/.zdp/logs/node.log</FileName>
+			<FilePattern>${sys:user.home}/.zdp/logs/%d{yyyy-MM-dd-hh-mm}.log.zip</FilePattern>
 			<PatternLayout>
 				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} - %msg%n</Pattern>
 			</PatternLayout>
