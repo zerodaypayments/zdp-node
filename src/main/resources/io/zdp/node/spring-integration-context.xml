@@ -11,9 +11,9 @@
 		http://www.springframework.org/schema/integration/ip http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd"
 >
 
-	<beans:import resource="spring-integration-amq-context.xml" />
 
 <!-- 
+	<beans:import resource="spring-integration-amq-context.xml" />
 	<int-ip:tcp-connection-factory
 		id="networkNodeServer"
 		type="server"

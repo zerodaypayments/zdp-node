@@ -4,13 +4,12 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import io.zdp.crypto.Curves;
-import io.zdp.crypto.key.ZDPKeyPair;
+import io.zdp.node.Node;
 import io.zdp.node.service.network.NetworkNode;
 import io.zdp.node.service.network.NetworkNodeType;
 
 /**
- *
+ *	Local node configuration
  */
 @Service
 public class NodeConfigurationService {
@@ -18,22 +17,15 @@ public class NodeConfigurationService {
 	private NetworkNode node;
 
 	@PostConstruct
-	public void init() {
-		node = new NetworkNode();
-		node.setUuid("test-local-node");
-		node.setNodeType(NetworkNodeType.VALIDATING);
-
-		ZDPKeyPair kp = ZDPKeyPair.createRandom(Curves.DEFAULT_CURVE);
-
-		node.setPublicKey(kp.getPublicKeyAsBase58());
-		node.setPrivateKey(kp.getPrivateKeyAsBase58());
+	public void init ( ) {
+		node = Node.getLocalNode();
 	}
 
-	public NetworkNodeType getNodeType() {
+	public NetworkNodeType getNodeType ( ) {
 		return node.getNodeType();
 	}
 
-	public NetworkNode getNode() {
+	public NetworkNode getNode ( ) {
 		return node;
 	}
 

@@ -3,27 +3,58 @@
 <Configuration status="WARN">
 
 	<Appenders>
-		<Console name="console" target="SYSTEM_OUT">
+	
+		<Console
+			name="console"
+			target="SYSTEM_OUT"
+		>
 			<PatternLayout
 				pattern="[%-5level] %d{dd-MMM-yy HH:mm:ss.SSS} %logger{36}.%M() - %msg%n" />
 		</Console>
-
+		
+		<RollingFile name="file">
+			<FileName>${user.home}/.zdp/logs/node.log</FileName>
+			<FilePattern>${user.home}/.zdp/logs/%d{yyyy-MM-dd-hh-mm}.log.zip</FilePattern>
+			<PatternLayout>
+				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} - %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy
+					interval="2"
+					modulate="true" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" />
+		</RollingFile>
 	</Appenders>
 
 	<Loggers>
 
-		<Logger name="org.springframework" level="warn"
-			additivity="false">
+		<Logger
+			name="org.springframework"
+			level="warn"
+			additivity="false"
+		>
 			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
 		</Logger>
 
-		<Logger name="io.zdp" level="debug"
-			additivity="false">
+		<Logger
+			name="io.zdp"
+			level="debug"
+			additivity="false"
+		>
 			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+			
 		</Logger>
 
-		<Root level="info" additivity="false">
+		<Root
+			level="info"
+			additivity="false"
+		>
 			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+			
 		</Root>
 	</Loggers>
 

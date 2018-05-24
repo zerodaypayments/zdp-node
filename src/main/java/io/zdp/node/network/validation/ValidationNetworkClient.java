@@ -1,23 +1,17 @@
 package io.zdp.node.network.validation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +37,10 @@ import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse.St
 @Service
 public class ValidationNetworkClient {
 
+	private Logger log = LoggerFactory.getLogger( this.getClass() );
+	
 	@Autowired
 	private NetworkTopologyService networkNodeService;
-
-	private Logger log = LoggerFactory.getLogger( this.getClass() );
 
 	private static final int HTTP_CLIENT_MAX_PER_ROUTE = 2000;
 
@@ -64,7 +58,7 @@ public class ValidationNetworkClient {
 	@PostConstruct
 	public void init ( ) {
 
-		synchronized ( restTemplate ) {
+		synchronized ( this ) {
 
 			close();
 
