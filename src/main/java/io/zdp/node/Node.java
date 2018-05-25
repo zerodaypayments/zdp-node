@@ -16,27 +16,47 @@ import io.zdp.node.service.network.NetworkNodeType;
 
 public class Node {
 
-	private static final Logger log = LoggerFactory.getLogger( Node.class );
+	private static final String DDASH = "--";
 
-	private static NetworkNode localNode = new NetworkNode();
+	private static final String EQUALS = "=";
 
-	public static void main ( String [ ] args ) throws Exception {
+	private static final String USER_HOME = "user.home";
+
+	private Logger log;
+
+	private static NetworkNode localNode;
+
+	private static final String RANDOM_UUID = UUID.randomUUID().toString();
+
+	public static void main ( String... args ) throws Exception {
+
+		// Sort out user home
+		setUserHomeVarialbe( args );
+
+		new Node().run( args );
+
+	}
+
+	private void run ( String... args ) throws Exception {
+
+		log = LoggerFactory.getLogger( Node.class );
 
 		populateLocalNode( args );
 
 		HttpServer http = new HttpServer();
 		http.init();
+
 	}
 
-	private static void populateLocalNode ( String [ ] args ) {
+	private void populateLocalNode ( String [ ] args ) {
+
+		localNode = new NetworkNode();
 
 		// defaults
 		localNode.setNodeType( NetworkNodeType.MONITORING );
 		localNode.setHostname( "localhost" );
 		localNode.setPort( 8080 );
-		localNode.setUuid( UUID.randomUUID().toString() );
-
-		String userHome = System.getProperty( "user.home" );
+		localNode.setUuid( RANDOM_UUID );
 
 		for ( String arg : args ) {
 
@@ -58,11 +78,6 @@ public class Node {
 					localNode.setHostname( value );
 				} else if ( "private-key".equalsIgnoreCase( key ) ) {
 					localNode.setPrivateKey( value );
-
-				} else if ( "data-folder".equalsIgnoreCase( key ) ) {
-
-					log.info( "New user home: " + value );
-					userHome = value;
 				}
 
 			}
@@ -73,26 +88,51 @@ public class Node {
 			System.exit( 1 );
 		}
 
+		log.debug( "Local node:  " + localNode );
+	}
+
+	private static void setUserHomeVarialbe ( String [ ] args ) {
+
+		String userHome = System.getProperty( USER_HOME );
+		String uuid = RANDOM_UUID;
+
+		for ( String arg : args ) {
+
+			if ( arg.contains( EQUALS ) ) {
+
+				String [ ] split = arg.split( EQUALS );
+				String key = StringUtils.removeStart( split [ 0 ], DDASH );
+				String value = split [ 1 ];
+
+				if ( "data-folder".equalsIgnoreCase( key ) ) {
+					System.out.println( "New user home: " + value );
+					userHome = value;
+				} else if ( "uuid".equalsIgnoreCase( key ) ) {
+					uuid = value;
+				}
+
+			}
+		}
+
 		// set new user home
-		if ( false == userHome.equals( System.getProperty( "user.home" ) ) ) {
+		if ( false == userHome.equals( System.getProperty( USER_HOME ) ) ) {
 
-			File userHomeFile = new File( userHome + File.separator + localNode.getUuid() );
+			File userHomeFile = new File( userHome + File.separator + uuid );
 
-			log.debug( "New user home: " + userHomeFile.getAbsolutePath() );
+			System.out.println( "New user home: " + userHomeFile.getAbsolutePath() );
 
 			try {
 				FileUtils.forceMkdir( userHomeFile );
 			} catch ( IOException e ) {
-				log.error( "Error: ", e );
+				System.out.println( "Error: " + e.getMessage() );
 				System.exit( 1 );
 			}
-			System.setProperty( "user.home", userHomeFile.getAbsolutePath() );
+			System.setProperty( USER_HOME, userHomeFile.getAbsolutePath() );
 
 		} else {
-			System.setProperty( "user.home", userHome );
+			System.setProperty( USER_HOME, userHome );
 		}
 
-		log.debug( "Local node:  " + localNode );
 	}
 
 	public static NetworkNode getLocalNode ( ) {

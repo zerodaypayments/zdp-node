@@ -125,7 +125,8 @@
 			<version>${spring.data.version}</version>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.springframework.integration</groupId> <artifactId>spring-integration-ip</artifactId> <version>${spring.integration.version}</version> </dependency> -->
+		<!-- <dependency> <groupId>org.springframework.integration</groupId> <artifactId>spring-integration-ip</artifactId> 
+			<version>${spring.integration.version}</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.springframework.integration</groupId>
@@ -156,6 +157,13 @@
 			<artifactId>javax.jms-api</artifactId>
 			<version>2.0.1</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.insubstantial</groupId>
+			<artifactId>substance</artifactId>
+			<version>7.3</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>junit</groupId>

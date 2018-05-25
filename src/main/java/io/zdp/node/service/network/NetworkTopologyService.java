@@ -1,10 +1,14 @@
 package io.zdp.node.service.network;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,53 +26,65 @@ import io.zdp.node.network.validation.ValidationNetworkClient;
 @Component
 public class NetworkTopologyService {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private Logger log = LoggerFactory.getLogger( this.getClass() );
 
-	private List<NetworkNode> nodes;
-	
+	private List < NetworkNode > nodes;
+
 	@Autowired
 	private ValidationNetworkClient validationNetworkClient;
 
-	@Scheduled(initialDelay = 3 * DateUtils.MILLIS_PER_SECOND, fixedDelay = 60 * DateUtils.MILLIS_PER_SECOND)
-	public synchronized void init() {
+	private String vnlFileContent;
 
-		log.debug("Refreshing network configuration");
+	private Date lastRefreshDate;
+
+	@Scheduled ( fixedDelay = 60 * DateUtils.MILLIS_PER_SECOND )
+	public synchronized void init ( ) {
+
+		log.debug( "Refreshing network configuration" );
 
 		try {
 			// Download public VNL (List of Validation Nodes) file
-			final URL url = new File("vnl.json").toURI().toURL();
+			final URL url = new File( "vnl.json" ).toURI().toURL();
 
 			final ObjectMapper jsonMapper = new ObjectMapper();
-			jsonMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+			jsonMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
 
-			final List<NetworkNode> topology = jsonMapper.readValue(url, new TypeReference<List<NetworkNode>>() {
-			});
+			try ( InputStream in = url.openStream() ) {
+				vnlFileContent = IOUtils.toString( in, StandardCharsets.UTF_8 );
+			}
 
-			if (nodes == null || false == CollectionUtils.isEqualCollection(topology, nodes)) {
+			final List < NetworkNode > topology = jsonMapper.readValue( vnlFileContent, new TypeReference < List < NetworkNode > >() {
+			} );
 
+			if ( nodes == null || false == CollectionUtils.isEqualCollection( topology, nodes ) ) {
+
+				log.debug( "VNL: " + vnlFileContent );
+				
 				nodes = topology;
 
-				for (NetworkNode node : nodes) {
-					node.setNodeType(NetworkNodeType.VALIDATING);
+				for ( NetworkNode node : nodes ) {
+					node.setNodeType( NetworkNodeType.VALIDATING );
 				}
 
-				log.debug("Loaded/reloaded list of validation nodes: " + nodes);
-				
+				log.debug( "Loaded/reloaded list of validation nodes: " + nodes );
+
+				lastRefreshDate = new Date();
+
 				validationNetworkClient.init();
 
 			} else {
-				log.debug("No change in network topology");
+				log.debug( "No change in network topology" );
 			}
 
-		} catch (Exception e) {
-			log.error("Error: ", e);
+		} catch ( Exception e ) {
+			log.error( "Error: ", e );
 		}
 
 	}
 
-	public List<NetworkNode> getNodes() {
+	public List < NetworkNode > getNodes ( ) {
 
-		if (nodes == null) {
+		if ( nodes == null ) {
 			init();
 		}
 
@@ -76,30 +92,38 @@ public class NetworkTopologyService {
 
 	}
 
-	public NetworkNode getNodeByUuid(String uuid) {
-		for (NetworkNode n : getNodes()) {
-			if (uuid.equals(n.getUuid())) {
+	public NetworkNode getNodeByUuid ( String uuid ) {
+		for ( NetworkNode n : getNodes() ) {
+			if ( uuid.equals( n.getUuid() ) ) {
 				return n;
 			}
 		}
 		return null;
 	}
 
-	public boolean isValidServerRequest(String serverUuid, byte[] data, byte[] signature) {
+	public boolean isValidServerRequest ( String serverUuid, byte [ ] data, byte [ ] signature ) {
 
-		NetworkNode node = this.getNodeByUuid(serverUuid);
+		NetworkNode node = this.getNodeByUuid( serverUuid );
 
-		if (node != null) {
+		if ( node != null ) {
 
 			try {
-				return Signing.isValidSignature(node.getECPublicKey(), data, signature);
-			} catch (Exception e) {
-				log.error("Error: ", e);
+				return Signing.isValidSignature( node.getECPublicKey(), data, signature );
+			} catch ( Exception e ) {
+				log.error( "Error: ", e );
 			}
 		}
 
 		return false;
 
+	}
+
+	public String getVnlFileContent ( ) {
+		return vnlFileContent;
+	}
+
+	public Date getLastRefreshDate ( ) {
+		return lastRefreshDate;
 	}
 
 }

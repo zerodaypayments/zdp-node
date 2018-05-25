@@ -19,7 +19,7 @@ import io.zdp.crypto.key.ZDPKeyPair;
 @SuppressWarnings ( "serial" )
 public class NetworkNode implements Serializable {
 
-	private static final Logger log = LoggerFactory.getLogger( NetworkNode.class );
+	private final Logger log = LoggerFactory.getLogger( NetworkNode.class );
 
 	private String hostname;
 
@@ -104,12 +104,6 @@ public class NetworkNode implements Serializable {
 	}
 
 	public String getUuid ( ) {
-
-		try {
-			Thread.sleep( 5000 );
-		} catch ( InterruptedException e ) {
-			e.printStackTrace();
-		}
 		return uuid;
 	}
 
