@@ -54,6 +54,7 @@ public class NodeLogsPanel extends JPanel {
 			public void handle ( String line ) {
 				textArea.append( line );
 				textArea.append( IOUtils.LINE_SEPARATOR );
+				textArea.setCaretPosition( textArea.getText().length() );
 
 			}
 		} );
