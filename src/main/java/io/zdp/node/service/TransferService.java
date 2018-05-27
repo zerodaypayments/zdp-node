@@ -108,17 +108,19 @@ public class TransferService {
 		Account to = this.accountDao.findByUuid(req.getToAccountUuid().getPublicKeyHash());
 
 		BigDecimal newFromBalance = from.getBalance().subtract(req.getTotalAmount());
+		from.setHeight(from.getHeight() + 1);
 		from.setBalance(newFromBalance);
 
 		this.accountDao.save(from);
 
-		log.debug("saved new from balance: " + from);
+		log.debug("saved new from balance/height: " + from);
 
 		BigDecimal newToBalance = to.getBalance().add(req.getAmount());
 		to.setBalance(newToBalance);
+		to.setHeight(to.getHeight() + 1);
 		this.accountDao.save(to);
 
-		log.debug("saved new to balance: " + to);
+		log.debug("saved new to balance/height: " + to);
 
 		log.debug("Response: " + resp);
 
