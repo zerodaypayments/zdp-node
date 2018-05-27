@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.zdp.node.service.network.NetworkTopologyService;
+import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.web.api.validation.model.ValidationPrepareTransferRequest;
 
 @Service

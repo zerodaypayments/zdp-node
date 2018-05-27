@@ -16,7 +16,7 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
 >
 
-	<context:component-scan base-package="io.zdp.node.network, io.zdp.node.service, io.zdp.node.http, io.zdp.node.storage, io.zdp.node.ui" />
+	<context:component-scan base-package="io.zdp.node.network, io.zdp.node.service, io.zdp.node.http, io.zdp.node.storage, io.zdp.node.ui, io.zdp.client" />
 
 	<context:property-placeholder
 		location="classpath:/io/zdp/node/app.properties"
@@ -28,6 +28,11 @@
 		ignore-unresolvable="true"
 		order="1"
 		location="file:/zdp/conf/api.properties" />
+
+	<beans:bean
+		id="NetworkTopologyService"
+		class="io.zdp.model.network.NetworkTopologyService"
+		init-method="init" />
 
 	<context:annotation-config />
 
@@ -42,6 +47,13 @@
 	<task:scheduler
 		id="default-task-scheduler"
 		pool-size="64" />
+
+	<task:scheduled-tasks>
+		<task:scheduled
+			ref="NetworkTopologyService"
+			method="init"
+			fixed-delay="60000" />
+	</task:scheduled-tasks>
 
 
 	<!-- Accounts database -->
@@ -208,5 +220,5 @@
 
 
 	<beans:import resource="spring-integration-context.xml" />
-	
+
 </beans>

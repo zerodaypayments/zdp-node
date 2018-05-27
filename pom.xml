@@ -142,7 +142,7 @@
 
 		<dependency>
 			<groupId>io.zdp</groupId>
-			<artifactId>io.zdp.api.model</artifactId>
+			<artifactId>io.zdp.client</artifactId>
 			<version>${zdp.version}</version>
 		</dependency>
 

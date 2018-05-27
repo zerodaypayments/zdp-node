@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.zdp.crypto.account.ZDPAccountUuid;
-import io.zdp.node.service.network.NetworkTopologyService;
+import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;

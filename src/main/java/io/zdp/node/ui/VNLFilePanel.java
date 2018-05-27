@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.common.QTextComponentContextMenu;
-import io.zdp.node.service.network.NetworkTopologyService;
 
 @Component
 @SuppressWarnings ( "serial" )
@@ -24,7 +24,7 @@ public class VNLFilePanel extends JPanel {
 	@Autowired
 	private NetworkTopologyService networkTopologyService;
 
-	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND )
+	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 5 )
 	public void refresh ( ) {
 
 		String content = networkTopologyService.getVnlFileContent();

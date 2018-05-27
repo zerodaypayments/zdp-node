@@ -4,9 +4,9 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
+import io.zdp.model.network.NetworkNode;
+import io.zdp.model.network.NetworkNodeType;
 import io.zdp.node.Node;
-import io.zdp.node.service.network.NetworkNode;
-import io.zdp.node.service.network.NetworkNodeType;
 
 /**
  *	Local node configuration

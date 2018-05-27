@@ -22,10 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import io.zdp.crypto.Signing;
+import io.zdp.model.network.NetworkNode;
+import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.service.NodeConfigurationService;
-import io.zdp.node.service.network.NetworkNode;
-import io.zdp.node.service.network.NetworkTopologyService;
 import io.zdp.node.web.api.validation.Urls;
 import io.zdp.node.web.api.validation.model.ValidationPrepareTransferRequest;
 import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse;
@@ -37,8 +37,8 @@ import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse.St
 @Service
 public class ValidationNetworkClient {
 
-	private Logger log = LoggerFactory.getLogger( this.getClass() );
-	
+	private Logger log = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private NetworkTopologyService networkNodeService;
 
@@ -50,26 +50,26 @@ public class ValidationNetworkClient {
 
 	private RestTemplate restTemplate;
 
-	private final ExecutorService rollbackThreadPool = Executors.newFixedThreadPool( 32 );
+	private final ExecutorService rollbackThreadPool = Executors.newFixedThreadPool(32);
 
 	@Autowired
 	private NodeConfigurationService nodeConfig;
 
 	@PostConstruct
-	public void init ( ) {
+	public void init() {
 
-		synchronized ( this ) {
+		synchronized (this) {
 
 			close();
 
-			restTemplate = new RestTemplate( Collections.singletonList( new MappingJackson2HttpMessageConverter() ) );
+			restTemplate = new RestTemplate(Collections.singletonList(new MappingJackson2HttpMessageConverter()));
 
 			HttpClient httpClient = HttpClientBuilder.create() //
-					.setMaxConnTotal( HTTP_CLIENT_MAX_TOTAL ) //
-					.setMaxConnPerRoute( HTTP_CLIENT_MAX_PER_ROUTE ) //
+					.setMaxConnTotal(HTTP_CLIENT_MAX_TOTAL) //
+					.setMaxConnPerRoute(HTTP_CLIENT_MAX_PER_ROUTE) //
 					.build();
 
-			restTemplate.setRequestFactory( new HttpComponentsClientHttpRequestFactory( httpClient ) );
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
 
 		}
 	}
@@ -77,24 +77,24 @@ public class ValidationNetworkClient {
 	/**
 	 * True for yes/no for this transfer 
 	 */
-	public ValidationPrepareTransferResponse prepare ( ValidatedTransferRequest req ) {
+	public ValidationPrepareTransferResponse prepare(ValidatedTransferRequest req) {
 
-		log.debug( "Prepare " + req );
+		log.debug("Prepare " + req);
 
 		ValidationPrepareTransferResponse resp;
 
-		if ( false == networkNodeService.getNodes().isEmpty() ) {
+		if (false == networkNodeService.getNodes().isEmpty()) {
 
-			resp = ask( req );
+			resp = ask(req);
 
 		} else {
 
-			log.debug( "I am the only validation node, I am very agreeable" );
+			log.debug("I am the only validation node, I am very agreeable");
 
 			resp = new ValidationPrepareTransferResponse();
-			resp.setFromAccount( req.getFromAccount() );
-			resp.setToAccount( req.getToAccount() );
-			resp.setStatus( Status.APPROVED );
+			resp.setFromAccount(req.getFromAccount());
+			resp.setToAccount(req.getToAccount());
+			resp.setStatus(Status.APPROVED);
 
 		}
 
@@ -103,75 +103,75 @@ public class ValidationNetworkClient {
 	}
 
 	@PreDestroy
-	public void close ( ) {
+	public void close() {
 
 	}
 
-	private ValidationPrepareTransferResponse ask ( ValidatedTransferRequest req ) {
+	private ValidationPrepareTransferResponse ask(ValidatedTransferRequest req) {
 
 		final ValidationPrepareTransferResponse resp = new ValidationPrepareTransferResponse();
 
-		final List < NetworkNode > nodes = networkNodeService.getNodes();
+		final List<NetworkNode> nodes = networkNodeService.getNodes();
 
 		// Pool for the vote call
-		final ExecutorService threadPool = Executors.newFixedThreadPool( nodes.size() );
+		final ExecutorService threadPool = Executors.newFixedThreadPool(nodes.size());
 
 		// Prepare request
-		final ValidationPrepareTransferRequest restRequest = toRequest( req );
+		final ValidationPrepareTransferRequest restRequest = toRequest(req);
 
 		try {
-			restRequest.setSignedRequest( Signing.sign( nodeConfig.getNode().getECPrivateKey(), restRequest.toHashData() ) );
-		} catch ( Exception e ) {
-			log.error( "Error: ", e );
+			restRequest.setSignedRequest(Signing.sign(nodeConfig.getNode().getECPrivateKey(), restRequest.toHashData()));
+		} catch (Exception e) {
+			log.error("Error: ", e);
 		}
 
 		// Create tasks
-		final List < PrepareTask > tasks = new ArrayList<>( networkNodeService.getNodes().size() );
+		final List<PrepareTask> tasks = new ArrayList<>(networkNodeService.getNodes().size());
 
 		// Run them in parallel
-		networkNodeService.getNodes().forEach( n -> {
+		networkNodeService.getNodes().forEach(n -> {
 
-			log.debug( "Validation node: " + n.getUuid() );
+			log.debug("Validation node: " + n.getUuid());
 
-			PrepareTask task = new PrepareTask( n.getBaseUrl() + Urls.URL_VOTE, restTemplate, restRequest );
+			PrepareTask task = new PrepareTask(n.getHttpBaseUrl() + Urls.URL_VOTE, restTemplate, restRequest);
 
-			tasks.add( task );
+			tasks.add(task);
 
-			threadPool.submit( task );
+			threadPool.submit(task);
 
-		} );
+		});
 
 		try {
-			threadPool.awaitTermination( 5, TimeUnit.SECONDS );
-		} catch ( InterruptedException e ) {
-			log.error( "Error: ", e );
+			threadPool.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			log.error("Error: ", e);
 		}
 
-		log.debug( "Finished voting: " );
+		log.debug("Finished voting: ");
 
-		for ( PrepareTask task : tasks ) {
-			log.debug( "Response:  " + task.getResponse() );
+		for (PrepareTask task : tasks) {
+			log.debug("Response:  " + task.getResponse());
 		}
 
 		return resp;
 
 	}
 
-	private ValidationPrepareTransferRequest toRequest ( ValidatedTransferRequest req ) {
+	private ValidationPrepareTransferRequest toRequest(ValidatedTransferRequest req) {
 		final ValidationPrepareTransferRequest restRequest = new ValidationPrepareTransferRequest();
-		restRequest.setFromAccountUuid( req.getFromAccountUuid().getUuid() );
-		restRequest.setRequestUuid( UUID.randomUUID().toString() );
-		restRequest.setServerUuid( nodeConfig.getNode().getUuid() );
-		restRequest.setToAccountUuid( req.getFromAccountUuid().getUuid() );
-		restRequest.setTransferUuid( req.getTransactionUuid() );
+		restRequest.setFromAccountUuid(req.getFromAccountUuid().getUuid());
+		restRequest.setRequestUuid(UUID.randomUUID().toString());
+		restRequest.setServerUuid(nodeConfig.getNode().getUuid());
+		restRequest.setToAccountUuid(req.getFromAccountUuid().getUuid());
+		restRequest.setTransferUuid(req.getTransactionUuid());
 		return restRequest;
 	}
 
-	public void commit ( ValidatedTransferRequest enrichedTransferRequest ) {
+	public void commit(ValidatedTransferRequest enrichedTransferRequest) {
 
 	}
 
-	public void rollback ( ValidatedTransferRequest enrichedTransferRequest ) {
+	public void rollback(ValidatedTransferRequest enrichedTransferRequest) {
 
 		// 	submit to rollbackThreadPool
 
