@@ -33,4 +33,9 @@ public class PrepareTask implements Runnable {
 
 	}
 
+	@Override
+	public String toString ( ) {
+		return "PrepareTask [url=" + url + ", response=" + response + "]";
+	}
+
 }

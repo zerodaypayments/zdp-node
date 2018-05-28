@@ -17,9 +17,10 @@ import io.zdp.client.ZdpClient;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
+import io.zdp.node.network.validation.NetworkValidationTopologyService;
 
 @Component
-@SuppressWarnings("serial")
+@SuppressWarnings ( "serial" )
 public class ValidationNodesPanel {
 
 	private JPanel panel;
@@ -27,62 +28,62 @@ public class ValidationNodesPanel {
 	private JEditorPane textArea;
 
 	@Autowired
-	private NetworkTopologyService networkTopologyService;
+	private NetworkValidationTopologyService networkTopologyService;
 
 	@Autowired
 	private ZdpClient zdpClient;
 
-	@Scheduled(fixedDelay = DateUtils.MILLIS_PER_SECOND * 2)
-	public void refresh() {
+	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 2 )
+	public void refresh ( ) {
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("<html><table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>");
+		sb.append( "<html><table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>" );
 
-		networkTopologyService.getNodes().stream().forEach(n -> {
+		networkTopologyService.getNodes().stream().forEach( n -> {
 
-			zdpClient.setHostUrl(n.getHttpBaseUrl());
+			zdpClient.setNetworkNode( n );
 
 			String active = "<span style='color:green;'>OK</span>";
 			try {
 				zdpClient.ping();
-			} catch (Exception e) {
+			} catch ( Exception e ) {
 				active = "<span style='color:red;'>Not available</span>";
 			}
 
-			sb.append("<tr style='background:#efefef;'><td>" + n.getHttpBaseUrl() + "</td><td>" + active + "</td></tr>");
+			sb.append( "<tr style='background:#efefef;'><td>" + n.getHttpBaseUrl() + "</td><td>" + active + "</td></tr>" );
 
-		});
+		} );
 
-		zdpClient.setHostUrl(null);
+		zdpClient.setNetworkNode( null );
 
-		sb.append("</table></html>");
+		sb.append( "</table></html>" );
 
-		textArea.setText(sb.toString());
+		textArea.setText( sb.toString() );
 
 	}
 
 	@PostConstruct
-	public void init() {
+	public void init ( ) {
 
-		SwingUtilities.invokeLater(() -> {
+		SwingUtilities.invokeLater( ( ) -> {
 
 			panel = new JPanel();
 
 			textArea = new JEditorPane();
-			textArea.setEditable(false);
-			textArea.setContentType("text/html");
+			textArea.setEditable( false );
+			textArea.setContentType( "text/html" );
 
-			new QTextComponentContextMenu(textArea);
+			new QTextComponentContextMenu( textArea );
 
-			SwingHelper.setFontForJText(textArea);
-			panel.setLayout(new BorderLayout());
-			panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+			SwingHelper.setFontForJText( textArea );
+			panel.setLayout( new BorderLayout() );
+			panel.add( new JScrollPane( textArea ), BorderLayout.CENTER );
 
-			textArea.setText("loading...");
-		});
+			textArea.setText( "loading..." );
+		} );
 	}
 
-	public JPanel getPanel() {
+	public JPanel getPanel ( ) {
 		return panel;
 	}
 
