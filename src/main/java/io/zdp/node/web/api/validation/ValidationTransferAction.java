@@ -25,22 +25,77 @@ public class ValidationTransferAction {
 	@Autowired
 	private CommitService commitService;
 
-	@RequestMapping(path = Urls.URL_VOTE)
+	// Statistics
+	private static ValidationPrepareTransferRequest lastValidationPrepareTransferRequest;
+	private static ValidationPrepareTransferResponse lastValidationPrepareTransferResponse;
+
+	private static ValidationCommitRequest lastValidationCommitRequest;
+	private static boolean lastValidationCommitResponse;
+
+	private static ValidationPrepareTransferRequest lastRollbackValidationPrepareTransferRequest;
+	private static boolean lastRollbackValidationPrepareTransferResponse;
+
+	@RequestMapping ( path = Urls.URL_VOTE )
 	@ResponseBody
-	public ValidationPrepareTransferResponse vote(@RequestBody ValidationPrepareTransferRequest req) throws Exception {
-		return voteService.prepare(req);
+	public ValidationPrepareTransferResponse vote ( @RequestBody ValidationPrepareTransferRequest req ) throws Exception {
+
+		lastValidationPrepareTransferRequest = req;
+
+		ValidationPrepareTransferResponse resp = voteService.prepare( req );
+
+		lastValidationPrepareTransferResponse = resp;
+
+		return resp;
 	}
 
-	@RequestMapping(path = Urls.URL_COMMIT)
+	@RequestMapping ( path = Urls.URL_COMMIT )
 	@ResponseBody
-	public Boolean commit(@RequestBody ValidationCommitRequest req) throws Exception {
-		return commitService.commit(req);
+	public Boolean commit ( @RequestBody ValidationCommitRequest req ) throws Exception {
+
+		lastValidationCommitRequest = req;
+
+		boolean resp = commitService.commit( req );
+
+		lastValidationCommitResponse = resp;
+
+		return resp;
 	}
 
-	@RequestMapping(path = Urls.URL_ROLLBACK)
+	@RequestMapping ( path = Urls.URL_ROLLBACK )
 	@ResponseBody
-	public Boolean rollback(@RequestBody ValidationPrepareTransferRequest req) throws Exception {
-		return rollbackService.rollback(req);
+	public Boolean rollback ( @RequestBody ValidationPrepareTransferRequest req ) throws Exception {
+
+		lastRollbackValidationPrepareTransferRequest = req;
+
+		boolean resp = rollbackService.rollback( req );
+
+		lastRollbackValidationPrepareTransferResponse = resp;
+
+		return resp;
+	}
+
+	public static ValidationPrepareTransferRequest getLastValidationPrepareTransferRequest ( ) {
+		return lastValidationPrepareTransferRequest;
+	}
+
+	public static ValidationPrepareTransferResponse getLastValidationPrepareTransferResponse ( ) {
+		return lastValidationPrepareTransferResponse;
+	}
+
+	public static ValidationCommitRequest getLastValidationCommitRequest ( ) {
+		return lastValidationCommitRequest;
+	}
+
+	public static boolean isLastValidationCommitResponse ( ) {
+		return lastValidationCommitResponse;
+	}
+
+	public static ValidationPrepareTransferRequest getLastRollbackValidationPrepareTransferRequest ( ) {
+		return lastRollbackValidationPrepareTransferRequest;
+	}
+
+	public static boolean isLastRollbackValidationPrepareTransferResponse ( ) {
+		return lastRollbackValidationPrepareTransferResponse;
 	}
 
 }

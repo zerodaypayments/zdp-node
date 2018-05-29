@@ -31,7 +31,7 @@ public class Node {
 
 	private static final String EQUALS = "=";
 
-	private static final String USER_HOME = "user.home";
+	public static final String USER_HOME = "user.home";
 
 	private Logger log;
 

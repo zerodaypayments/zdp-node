@@ -24,9 +24,9 @@ import org.springframework.web.client.RestTemplate;
 
 import io.zdp.crypto.Signing;
 import io.zdp.model.network.NetworkNode;
-import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.domain.ValidatedTransferRequest;
 import io.zdp.node.service.NodeConfigurationService;
+import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.web.api.validation.Urls;
 import io.zdp.node.web.api.validation.model.ValidationPrepareTransferRequest;
 import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse;
@@ -56,6 +56,9 @@ public class ValidationNetworkClient {
 	@Autowired
 	private NodeConfigurationService nodeConfig;
 
+	private static ValidatedTransferRequest lastRequest;
+	private static ValidationPrepareTransferResponse lastResponse;
+
 	@PostConstruct
 	public void init ( ) {
 
@@ -82,6 +85,8 @@ public class ValidationNetworkClient {
 
 		log.debug( "Prepare " + req );
 
+		lastRequest = req;
+
 		ValidationPrepareTransferResponse resp;
 
 		if ( false == networkNodeService.getNodes().isEmpty() ) {
@@ -98,6 +103,8 @@ public class ValidationNetworkClient {
 			resp.setStatus( Status.APPROVED );
 
 		}
+
+		lastResponse = resp;
 
 		return resp;
 
@@ -175,18 +182,31 @@ public class ValidationNetworkClient {
 
 	private void findLatestAccount ( final List < PrepareTask > tasks, final ValidationPrepareTransferResponse resp ) {
 
-		for (final  PrepareTask task : tasks ) {
+		for ( final PrepareTask task : tasks ) {
 
 			final ValidationPrepareTransferResponse tr = task.getResponse();
 
 			// From
-			if ( resp.getFromAccount() == null ) {
-				resp.setFromAccount( tr.getFromAccount() );
-			} else if ( tr.getFromAccount() != null && resp.getFromAccount().getHeight() > tr.getFromAccount().getHeight() ) {
+			Account from = tr.getFromAccount();
 
+			if ( resp.getFromAccount() == null ) {
+				resp.setFromAccount( from );
+			} else if ( from != null && resp.getFromAccount().getHeight() > from.getHeight() ) {
+				resp.getFromAccount().setHeight( from.getHeight() );
+				resp.getFromAccount().setTransferHash( from.getTransferHash() );
+				resp.getFromAccount().setBalance( from.getBalance() );
 			}
-				
+
 			// To
+			Account to = tr.getToAccount();
+
+			if ( resp.getToAccount() == null ) {
+				resp.setToAccount( to );
+			} else if ( resp.getToAccount().getHeight() < to.getHeight() ) {
+				resp.getToAccount().setHeight( to.getHeight() );
+				resp.getToAccount().setTransferHash( to.getTransferHash() );
+				resp.getToAccount().setBalance( to.getBalance() );
+			}
 
 		}
 
@@ -241,6 +261,14 @@ public class ValidationNetworkClient {
 
 		// 	submit to rollbackThreadPool
 
+	}
+
+	public static ValidatedTransferRequest getLastRequest ( ) {
+		return lastRequest;
+	}
+
+	public static ValidationPrepareTransferResponse getLastResponse ( ) {
+		return lastResponse;
 	}
 
 }

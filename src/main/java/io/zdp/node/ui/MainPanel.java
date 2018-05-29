@@ -28,34 +28,39 @@ public class MainPanel extends JPanel {
 	@Autowired
 	private ValidationNodesPanel validationNodesPanel;
 
+	@Autowired
+	private LastTransferPanel lastTransferPanel;
+
 	@PostConstruct
-	public void init() {
+	public void init ( ) {
 
 		this.tabs = new JTabbedPane();
 
-		this.setLayout(new BorderLayout());
-		this.add(tabs, BorderLayout.CENTER);
+		this.setLayout( new BorderLayout() );
+		this.add( tabs, BorderLayout.CENTER );
 
 		ServerInfoPanel info = new ServerInfoPanel();
-		info.serverHost.setText(nodeService.getNode().getHostname());
-		info.serverPort.setText(nodeService.getNode().getHttpPort() + "");
-		info.serverUuid.setText(nodeService.getNode().getUuid());
-		info.serverType.setText(nodeService.getNode().getNodeType().name());
-		info.serverPublicKey.setText(nodeService.getNode().getPublicKey());
-		info.serverCurve.setText(Curves.VALIDATION_NODE_CURVE);
+		info.serverHost.setText( nodeService.getNode().getHostname() );
+		info.serverPort.setText( nodeService.getNode().getHttpPort() + "" );
+		info.serverUuid.setText( nodeService.getNode().getUuid() );
+		info.serverType.setText( nodeService.getNode().getNodeType().name() );
+		info.serverPublicKey.setText( nodeService.getNode().getPublicKey() );
+		info.serverCurve.setText( Curves.VALIDATION_NODE_CURVE );
 
-		new QTextComponentContextMenu(info.serverHost);
-		new QTextComponentContextMenu(info.serverPort);
-		new QTextComponentContextMenu(info.serverUuid);
-		new QTextComponentContextMenu(info.serverType);
-		new QTextComponentContextMenu(info.serverPublicKey);
-		new QTextComponentContextMenu(info.serverCurve);
+		new QTextComponentContextMenu( info.serverHost );
+		new QTextComponentContextMenu( info.serverPort );
+		new QTextComponentContextMenu( info.serverUuid );
+		new QTextComponentContextMenu( info.serverType );
+		new QTextComponentContextMenu( info.serverPublicKey );
+		new QTextComponentContextMenu( info.serverCurve );
 
-		this.tabs.insertTab("Node Info", new ImageIcon(this.getClass().getResource("/icons/app/16.png")), info, "Node information", 0);
-		this.tabs.insertTab("Node System Logs", new ImageIcon(this.getClass().getResource("/icons/report.png")), new NodeLogsPanel(), "Node System Logs", 1);
-		this.tabs.insertTab("Node HTTP Logs", new ImageIcon(this.getClass().getResource("/icons/world.png")), new NodeHttpLogsPanel(), "Node HTTP Logs", 2);
-		this.tabs.insertTab("VNL File", new ImageIcon(this.getClass().getResource("/icons/brick.png")), vnlFilePanel, "Validation Nodes Network File", 3);
-		this.tabs.insertTab("Validation Nodes", new ImageIcon(this.getClass().getResource("/icons/brick.png")), validationNodesPanel.getPanel(), "Validation Nodes", 4);
+		this.tabs.insertTab( "Node Info", new ImageIcon( this.getClass().getResource( "/icons/app/16.png" ) ), info, "Node information", 0 );
+		this.tabs.insertTab( "Node System Logs", new ImageIcon( this.getClass().getResource( "/icons/report.png" ) ), new NodeLogsPanel(), "Node System Logs", 1 );
+		this.tabs.insertTab( "Node HTTP Logs", new ImageIcon( this.getClass().getResource( "/icons/world.png" ) ), new NodeHttpLogsPanel(), "Node HTTP Logs", 2 );
+		this.tabs.insertTab( "VNL File", new ImageIcon( this.getClass().getResource( "/icons/brick.png" ) ), vnlFilePanel, "Validation Nodes Network File", 3 );
+		this.tabs.insertTab( "Validation Nodes", new ImageIcon( this.getClass().getResource( "/icons/brick.png" ) ), validationNodesPanel.getPanel(), "Validation Nodes", 4 );
+
+		this.tabs.insertTab( "Last Transfer Info", new ImageIcon( this.getClass().getResource( "/icons/app/16.png" ) ), lastTransferPanel.getPanel(), "Last Transfer Info", 5 );
 
 	}
 

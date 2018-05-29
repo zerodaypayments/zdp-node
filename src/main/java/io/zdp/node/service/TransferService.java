@@ -26,9 +26,9 @@ import io.zdp.node.web.api.validation.model.ValidationPrepareTransferResponse.St
 @Service
 public class TransferService {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private Logger log = LoggerFactory.getLogger( this.getClass() );
 
-	public static final BigDecimal TX_FEE = BigDecimal.valueOf(0.0001);
+	public static final BigDecimal TX_FEE = BigDecimal.valueOf( 0.0001 );
 
 	public static final String TX_PREFIX = "tx";
 
@@ -50,29 +50,29 @@ public class TransferService {
 	/**
 	 * Make a transfer
 	 */
-	public TransferResponse transfer(TransferRequest request) throws TransferException {
+	public TransferResponse transfer ( TransferRequest request ) throws TransferException {
 
-		log.debug("Request: " + request);
+		log.debug( "Request: " + request );
 
 		final TransferResponse resp = new TransferResponse();
 
 		// Validate transfer request
-		final ValidatedTransferRequest enrichedTransferRequest = validationService.validate(request);
+		final ValidatedTransferRequest enrichedTransferRequest = validationService.validate( request );
 
 		// Ask Validation network
-		ValidationPrepareTransferResponse prepared = validationNetworkClient.prepare(enrichedTransferRequest);
+		ValidationPrepareTransferResponse prepared = validationNetworkClient.prepare( enrichedTransferRequest );
 
-		if (prepared.getStatus().equals(Status.APPROVED)) {
+		if ( prepared.getStatus().equals( Status.APPROVED ) ) {
 
-			save(enrichedTransferRequest, resp);
+			save( enrichedTransferRequest, resp );
 
-			validationNetworkClient.commit(enrichedTransferRequest);
+			validationNetworkClient.commit( enrichedTransferRequest );
 
 		} else {
 
-			resp.setError(TransferResponse.ERROR_REJECTED);
+			resp.setError( TransferResponse.ERROR_REJECTED );
 
-			validationNetworkClient.rollback(enrichedTransferRequest);
+			validationNetworkClient.rollback( enrichedTransferRequest );
 
 		}
 
@@ -80,49 +80,73 @@ public class TransferService {
 
 	}
 
-	@Transactional(readOnly = false)
-	private void save(ValidatedTransferRequest req, final TransferResponse resp) {
+	@Transactional ( readOnly = false )
+	private void save ( ValidatedTransferRequest req, final TransferResponse resp ) throws TransferException {
+
+		// If no FROM account, stop no
+		if ( req.getFromAccount() == null ) {
+			throw new TransferException( TransferResponse.ERROR_INVALID_FROM_ACCOUNT );
+		}
 
 		// Save transfer header
 		TransferHeader th = new TransferHeader();
-		th.setUuid(req.getTransactionSignature());
-		this.transferHeaderDao.save(th);
+		th.setUuid( req.getTransactionSignature() );
+		this.transferHeaderDao.save( th );
 
 		// Save Current Transfer
 		final CurrentTransfer transfer = new CurrentTransfer();
-		transfer.setUuid(req.getTransactionUuid());
-		transfer.setAmount(req.getAmount().toPlainString());
-		transfer.setDate(req.getTime());
-		transfer.setFrom(req.getFromAccountUuid().getUuid());
-		transfer.setTo(req.getToAccountUuid().getUuid());
-		transfer.setMemo(StringHelper.cleanUpMemo(req.getMemo()));
-		transfer.setFee(req.getFee().toPlainString());
-		this.transferDao.save(transfer);
+		transfer.setUuid( req.getTransactionUuid() );
+		transfer.setAmount( req.getAmount().toPlainString() );
+		transfer.setDate( req.getTime() );
+		transfer.setFrom( req.getFromAccountUuid().getUuid() );
+		transfer.setTo( req.getToAccountUuid().getUuid() );
+		transfer.setMemo( StringHelper.cleanUpMemo( req.getMemo() ) );
+		transfer.setFee( req.getFee().toPlainString() );
+		this.transferDao.save( transfer );
 
-		resp.setUuid(req.getTransactionUuid());
+		resp.setUuid( req.getTransactionUuid() );
 
-		log.debug("Saved tx: " + transfer);
+		log.debug( "Saved tx: " + transfer );
 
 		// Update balances
-		Account from = this.accountDao.findByUuid(req.getFromAccountUuid().getPublicKeyHash());
-		Account to = this.accountDao.findByUuid(req.getToAccountUuid().getPublicKeyHash());
+		final Account from = this.accountDao.findByUuid( req.getFromAccountUuid().getPublicKeyHash() );
 
-		BigDecimal newFromBalance = from.getBalance().subtract(req.getTotalAmount());
-		from.setHeight(from.getHeight() + 1);
-		from.setBalance(newFromBalance);
+		if ( from.getBalance().compareTo( req.getTotalAmount() ) < 0 ) {
+			throw new TransferException( TransferResponse.ERROR_INSUFFICIENT_FUNDS );
+		}
 
-		this.accountDao.save(from);
+		Account to = this.accountDao.findByUuid( req.getToAccountUuid().getPublicKeyHash() );
 
-		log.debug("saved new from balance/height: " + from);
+		// If no TO account, create ONE
+		if ( req.getToAccount() == null ) {
 
-		BigDecimal newToBalance = to.getBalance().add(req.getAmount());
-		to.setBalance(newToBalance);
-		to.setHeight(to.getHeight() + 1);
-		this.accountDao.save(to);
+			to = new Account();
+			to.setBalance( BigDecimal.ZERO );
+			to.setCurve( req.getToAccountUuid().getCurveAsIndex() );
+			to.setHeight( 0 );
+			to.setTransferHash( new byte [ ] {} );
+			to.setUuid( req.getToAccountUuid().getPublicKeyHash() );
 
-		log.debug("saved new to balance/height: " + to);
+			log.debug( "Create new TO account: " + to );
 
-		log.debug("Response: " + resp);
+		}
+
+		final BigDecimal newFromBalance = from.getBalance().subtract( req.getTotalAmount() );
+		from.setHeight( from.getHeight() + 1 );
+		from.setBalance( newFromBalance );
+
+		this.accountDao.save( from );
+
+		log.debug( "saved new from balance/height: " + from );
+
+		final BigDecimal newToBalance = to.getBalance().add( req.getAmount() );
+		to.setBalance( newToBalance );
+		to.setHeight( to.getHeight() + 1 );
+		this.accountDao.save( to );
+
+		log.debug( "saved new to balance/height: " + to );
+
+		log.debug( "Response: " + resp );
 
 	}
 

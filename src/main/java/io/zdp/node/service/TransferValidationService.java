@@ -94,10 +94,16 @@ public class TransferValidationService {
 
 			enrichedRequest.setFromAccount(fromAccount);
 
+			/*
+
+			The node might not know the account yet, don't verify
+
 			if (fromAccount == null) {
 				log.debug("Not found FROM account: " + fromAccountUuid);
 				throw new TransferException(TransferResponse.ERROR_INVALID_FROM_ACCOUNT);
 			}
+			
+			*/
 
 			final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
 			enrichedRequest.setToAccountUuid(toAccountUuid);
@@ -132,9 +138,15 @@ public class TransferValidationService {
 
 				log.debug("totalAmount: " + totalAmount);
 
-				if (fromAccount.getBalance().compareTo(totalAmount) < 0) {
-					throw new TransferException(TransferResponse.ERROR_INSUFFICIENT_FUNDS);
-				}
+				/*
+					
+					This node might have an older account record, so the balance check doesn't make sense at this stage.
+					
+					if (fromAccount.getBalance().compareTo(totalAmount) < 0) {
+						throw new TransferException(TransferResponse.ERROR_INSUFFICIENT_FUNDS);
+					}
+				
+				*/
 
 				enrichedRequest.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
 				enrichedRequest.setTransactionSignature(signature);
