@@ -1,6 +1,7 @@
 package io.zdp.node.ui;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JEditorPane;
@@ -14,10 +15,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.zdp.client.ZdpClient;
-import io.zdp.model.network.NetworkTopologyService;
+import io.zdp.node.Node;
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
 import io.zdp.node.network.validation.NetworkValidationTopologyService;
+import io.zdp.node.storage.account.dao.AccountDao;
+import io.zdp.node.storage.account.domain.Account;
+import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
+import io.zdp.node.storage.transfer.domain.TransferHeader;
 
 @Component
 @SuppressWarnings ( "serial" )
@@ -33,11 +38,20 @@ public class ValidationNodesPanel {
 	@Autowired
 	private ZdpClient zdpClient;
 
+	@Autowired
+	private AccountDao accountDao;
+
+	@Autowired
+	private TransferHeaderDao transferHeaderDao;
+
 	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 2 )
 	public void refresh ( ) {
 
 		StringBuilder sb = new StringBuilder();
-		sb.append( "<html><table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>" );
+
+		sb.append( "<html>" );
+
+		sb.append( "<table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>" );
 
 		networkTopologyService.getNodes().stream().forEach( n -> {
 
@@ -56,7 +70,33 @@ public class ValidationNodesPanel {
 
 		zdpClient.setNetworkNode( null );
 
-		sb.append( "</table></html>" );
+		sb.append( "</table>" );
+
+		if ( Node.isDebugMode() ) {
+
+			// List of accounts
+
+			sb.append( "<h2>Accounts</h2>" );
+
+			List < Account > accounts = accountDao.findAll();
+			sb.append( "Accounts count: " + accounts.size() + "<hr>" );
+			for ( Account a : accounts ) {
+				sb.append( "Account: " + a + "<hr>" );
+			}
+
+			// List of transfers
+
+			sb.append( "<h2>Transfers</h2>" );
+
+			List < TransferHeader > transfers = transferHeaderDao.findAll();
+			sb.append( "transfers count: " + transfers.size() + "<hr>" );
+			for ( TransferHeader th : transfers ) {
+				sb.append( "Transfer: " + th + "<hr>" );
+			}
+
+		}
+
+		sb.append( "</html>" );
 
 		textArea.setText( sb.toString() );
 

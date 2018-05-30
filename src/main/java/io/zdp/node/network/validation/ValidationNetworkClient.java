@@ -22,6 +22,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import io.zdp.api.model.v1.GetBalanceRequest;
+import io.zdp.api.model.v1.GetBalanceResponse;
 import io.zdp.crypto.Signing;
 import io.zdp.model.network.NetworkNode;
 import io.zdp.node.domain.ValidatedTransferRequest;
@@ -269,6 +271,53 @@ public class ValidationNetworkClient {
 
 	public static ValidationPrepareTransferResponse getLastResponse ( ) {
 		return lastResponse;
+	}
+
+	public GetBalanceResponse getBalance ( GetBalanceRequest request, GetBalanceResponse resp ) {
+
+		// Pool for the vote call
+		final List < NetworkNode > nodes = networkNodeService.getNodes();
+
+		final ExecutorService threadPool = Executors.newFixedThreadPool( nodes.size() );
+
+		final List < GetBalanceTask > tasks = new ArrayList<>( networkNodeService.getNodes().size() );
+
+		networkNodeService.getNodes().forEach( n -> {
+
+			log.debug( "Get balance from validation node: " + n.getUuid() );
+
+			final GetBalanceTask task = new GetBalanceTask( n.getHttpBaseUrl() + io.zdp.api.model.v1.Urls.URL_GET_BALANCE, restTemplate, request );
+
+			tasks.add( task );
+
+			threadPool.submit( task );
+
+		} );
+
+		try {
+			threadPool.awaitTermination( 5, TimeUnit.SECONDS );
+		} catch ( InterruptedException e ) {
+			log.error( "Error: ", e );
+		}
+
+		log.debug( "Finished getting balance: " );
+
+		for ( final GetBalanceTask task : tasks ) {
+
+			final GetBalanceResponse tr = task.getResponse();
+
+			if ( tr != null ) {
+				if ( resp.getAmount() == null || tr.getHeight() > resp.getHeight() ) {
+					resp.setAmount( tr.getAmount() );
+					resp.setHeight( tr.getHeight() );
+					resp.setChainHash( tr.getChainHash() );
+				}
+			}
+
+		}
+
+		return resp;
+
 	}
 
 }

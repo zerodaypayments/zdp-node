@@ -15,6 +15,7 @@ import io.zdp.api.model.v1.GetBalanceResponse;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.Curves;
 import io.zdp.crypto.account.ZDPAccountUuid;
+import io.zdp.node.network.validation.ValidationNetworkClient;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 
@@ -25,6 +26,9 @@ public class AccountService {
 
 	@Autowired
 	private AccountDao accountDao;
+
+	@Autowired
+	private ValidationNetworkClient validationNetworkClient;
 
 	@PostConstruct
 	public void init ( ) throws Exception {
@@ -37,7 +41,7 @@ public class AccountService {
 			genesis.setCurve( Curves.DEFAULT_CURVE_INDEX );
 			genesis.setHeight( 1 );
 			genesis.setTransferHash( new byte [ ] {} );
-			genesis.setUuid( Base58.decode( "NDmQbwTw3gVT6uihcQjcoRCsNG7" ) );
+			genesis.setUuid( Base58.decode( "o2mbxKksL8mxQnA6G4v7NvARgzV" ) );
 
 			// mint a genesis account
 			accountDao.save( genesis );
@@ -48,15 +52,55 @@ public class AccountService {
 		}
 	}
 
-	@Transactional ( readOnly = false )
 	public GetBalanceResponse getBalance ( GetBalanceRequest request ) throws Exception {
 
 		long st = System.currentTimeMillis();
 
+		final GetBalanceResponse localResponse = getLocalAccountBalance( request );
+
+		final GetBalanceResponse remoteResponse = new GetBalanceResponse();
+
+		// Get network view on the balance
+		validationNetworkClient.getBalance( request, remoteResponse );
+
+		long et = System.currentTimeMillis();
+		log.debug( "Getting balance took: " + ( et - st ) + " ms." );
+
+		if ( remoteResponse.getHeight() > localResponse.getHeight() ) {
+			updateLocalAccountBalance( request, localResponse, remoteResponse );
+			return remoteResponse;
+		} else {
+			return localResponse;
+		}
+
+	}
+
+	@Transactional ( readOnly = false )
+	private void updateLocalAccountBalance ( GetBalanceRequest request, GetBalanceResponse localResponse, GetBalanceResponse remoteResponse ) {
+
+		final byte [ ] accountUuid = new ZDPAccountUuid( request.getAccountUuid() ).getPublicKeyHash();
+
+		Account account = this.accountDao.findByUuid( accountUuid );
+
+		if ( account == null ) {
+			account = new Account();
+		}
+
+		account.setBalance( new BigDecimal( remoteResponse.getAmount() ) );
+		account.setHeight( remoteResponse.getHeight() );
+		account.setTransferHash( remoteResponse.getChainHash() );
+
+		this.accountDao.save( account );
+
+	}
+
+	@Transactional ( readOnly = true )
+	private GetBalanceResponse getLocalAccountBalance ( GetBalanceRequest req ) {
+
 		final GetBalanceResponse resp = new GetBalanceResponse();
 
 		// Generate account from public key
-		final byte [ ] accountUuid = new ZDPAccountUuid( request.getAccountUuid() ).getPublicKeyHash();
+		final byte [ ] accountUuid = new ZDPAccountUuid( req.getAccountUuid() ).getPublicKeyHash();
 
 		Account account = this.accountDao.findByUuid( accountUuid );
 
@@ -64,13 +108,7 @@ public class AccountService {
 			resp.setAmount( account.getBalance().toPlainString() );
 			resp.setHeight( account.getHeight() );
 			resp.setChainHash( account.getTransferHash() );
-		} else {
-			resp.setAmount( "0.0" );
 		}
-
-		long et = System.currentTimeMillis();
-
-		log.debug( "Getting balance took: " + ( et - st ) + " ms." );
 
 		return resp;
 	}

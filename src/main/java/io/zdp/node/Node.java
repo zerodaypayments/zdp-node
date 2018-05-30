@@ -24,7 +24,9 @@ public class Node {
 	private static final String PARAM_HOST = "host";
 
 	private static final String PARAM_HTTP_PORT = "http-port";
-	
+
+	private static final String PARAM_DEBUG = "debug";
+
 	private static final String PARAM_UUID = "uuid";
 
 	private static final String DDASH = "--";
@@ -39,86 +41,90 @@ public class Node {
 
 	private static final String RANDOM_UUID = UUID.randomUUID().toString();
 
-	public static void main(String... args) throws Exception {
+	private static boolean debugMode = false;
+
+	public static void main ( String... args ) throws Exception {
 
 		// Sort out user home
-		setUserHomeVarialbe(args);
+		setUserHomeVarialbe( args );
 
-		new Node().run(args);
+		new Node().run( args );
 
 	}
 
-	private void run(String... args) throws Exception {
+	private void run ( String... args ) throws Exception {
 
-		log = LoggerFactory.getLogger(Node.class);
+		log = LoggerFactory.getLogger( Node.class );
 
-		populateLocalNode(args);
+		populateLocalNode( args );
 
 		HttpServer http = new HttpServer();
 		http.init();
 
 	}
 
-	private void populateLocalNode(String[] args) {
+	private void populateLocalNode ( String [ ] args ) {
 
 		localNode = new NetworkNode();
 
 		// defaults
-		localNode.setNodeType(NetworkNodeType.MONITORING);
-		localNode.setHostname("localhost");
-		localNode.setHttpPort(8080);
-		localNode.setUuid(RANDOM_UUID);
+		localNode.setNodeType( NetworkNodeType.MONITORING );
+		localNode.setHostname( "localhost" );
+		localNode.setHttpPort( 8080 );
+		localNode.setUuid( RANDOM_UUID );
 
-		for (String arg : args) {
+		for ( String arg : args ) {
 
-			if (arg.contains(EQUALS)) {
+			if ( arg.contains( EQUALS ) ) {
 
-				String[] split = arg.split(EQUALS);
-				String key = StringUtils.removeStart(split[0], DDASH);
-				String value = split[1];
+				String [ ] split = arg.split( EQUALS );
+				String key = StringUtils.removeStart( split [ 0 ], DDASH );
+				String value = split [ 1 ];
 
-				if (PARAM_TYPE.equalsIgnoreCase(key)) {
-					if (NetworkNodeType.VALIDATING.name().equals(value)) {
-						localNode.setNodeType(NetworkNodeType.VALIDATING);
+				if ( PARAM_TYPE.equalsIgnoreCase( key ) ) {
+					if ( NetworkNodeType.VALIDATING.name().equals( value ) ) {
+						localNode.setNodeType( NetworkNodeType.VALIDATING );
 					}
-				} else if (PARAM_UUID.equalsIgnoreCase(key)) {
-					localNode.setUuid(value);
-				} else if (PARAM_HTTP_PORT.equalsIgnoreCase(key)) {
-					localNode.setHttpPort(Integer.parseInt(value));
-				} else if (PARAM_HOST.equalsIgnoreCase(key)) {
-					localNode.setHostname(value);
-				} else if (PARAM_PRIVATE_KEY.equalsIgnoreCase(key)) {
-					localNode.setPrivateKey(value);
+				} else if ( PARAM_UUID.equalsIgnoreCase( key ) ) {
+					localNode.setUuid( value );
+				} else if ( PARAM_HTTP_PORT.equalsIgnoreCase( key ) ) {
+					localNode.setHttpPort( Integer.parseInt( value ) );
+				} else if ( PARAM_HOST.equalsIgnoreCase( key ) ) {
+					localNode.setHostname( value );
+				} else if ( PARAM_PRIVATE_KEY.equalsIgnoreCase( key ) ) {
+					localNode.setPrivateKey( value );
+				} else if ( PARAM_DEBUG.equalsIgnoreCase( key ) ) {
+					debugMode = Boolean.parseBoolean( value );
 				}
 
 			}
 		}
 
-		if (localNode.isValidating() && StringUtils.isBlank(localNode.getPrivateKey())) {
-			System.err.println("Validating node must have a private key (--private-key parameter)");
-			System.exit(1);
+		if ( localNode.isValidating() && StringUtils.isBlank( localNode.getPrivateKey() ) ) {
+			System.err.println( "Validating node must have a private key (--private-key parameter)" );
+			System.exit( 1 );
 		}
 
-		log.debug("Local node:  " + localNode);
+		log.debug( "Local node:  " + localNode );
 	}
 
-	private static void setUserHomeVarialbe(String[] args) {
+	private static void setUserHomeVarialbe ( String [ ] args ) {
 
-		String userHome = System.getProperty(USER_HOME);
+		String userHome = System.getProperty( USER_HOME );
 		String uuid = RANDOM_UUID;
 
-		for (String arg : args) {
+		for ( String arg : args ) {
 
-			if (arg.contains(EQUALS)) {
+			if ( arg.contains( EQUALS ) ) {
 
-				String[] split = arg.split(EQUALS);
-				String key = StringUtils.removeStart(split[0], DDASH);
-				String value = split[1];
+				String [ ] split = arg.split( EQUALS );
+				String key = StringUtils.removeStart( split [ 0 ], DDASH );
+				String value = split [ 1 ];
 
-				if (PARAM_DATA_FOLDER.equalsIgnoreCase(key)) {
-					System.out.println("New user home: " + value);
+				if ( PARAM_DATA_FOLDER.equalsIgnoreCase( key ) ) {
+					System.out.println( "New user home: " + value );
 					userHome = value;
-				} else if (PARAM_UUID.equalsIgnoreCase(key)) {
+				} else if ( PARAM_UUID.equalsIgnoreCase( key ) ) {
 					uuid = value;
 				}
 
@@ -126,28 +132,32 @@ public class Node {
 		}
 
 		// set new user home
-		if (false == userHome.equals(System.getProperty(USER_HOME))) {
+		if ( false == userHome.equals( System.getProperty( USER_HOME ) ) ) {
 
-			File userHomeFile = new File(userHome + File.separator + uuid);
+			File userHomeFile = new File( userHome + File.separator + uuid );
 
-			System.out.println("New user home: " + userHomeFile.getAbsolutePath());
+			System.out.println( "New user home: " + userHomeFile.getAbsolutePath() );
 
 			try {
-				FileUtils.forceMkdir(userHomeFile);
-			} catch (IOException e) {
-				System.out.println("Error: " + e.getMessage());
-				System.exit(1);
+				FileUtils.forceMkdir( userHomeFile );
+			} catch ( IOException e ) {
+				System.out.println( "Error: " + e.getMessage() );
+				System.exit( 1 );
 			}
-			System.setProperty(USER_HOME, userHomeFile.getAbsolutePath());
+			System.setProperty( USER_HOME, userHomeFile.getAbsolutePath() );
 
 		} else {
-			System.setProperty(USER_HOME, userHome);
+			System.setProperty( USER_HOME, userHome );
 		}
 
 	}
 
-	public static NetworkNode getLocalNode() {
+	public static NetworkNode getLocalNode ( ) {
 		return localNode;
+	}
+
+	public static boolean isDebugMode ( ) {
+		return debugMode;
 	}
 
 }

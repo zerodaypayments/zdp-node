@@ -44,8 +44,8 @@ public class NodeLogsPanel extends JPanel {
 			public void init ( Tailer tailer ) {
 				try {
 					log.debug( "Logs: " + file );
-					textArea.setText( FileUtils.readFileToString( file, StandardCharsets.UTF_8 ) );
-				} catch ( IOException e ) {
+					//textArea.setText( FileUtils.readFileToString( file, StandardCharsets.UTF_8 ) );
+				} catch ( Exception e ) {
 					log.error( "Error:" + e.getMessage() );
 				}
 			}
@@ -55,6 +55,11 @@ public class NodeLogsPanel extends JPanel {
 				textArea.append( line );
 				textArea.append( IOUtils.LINE_SEPARATOR );
 				textArea.setCaretPosition( textArea.getText().length() );
+				
+				if (textArea.getText().length() > 65000) {
+					textArea.setText( "" );
+				}
+				
 
 			}
 		} );
