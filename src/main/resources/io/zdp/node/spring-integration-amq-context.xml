@@ -8,7 +8,7 @@
 			http://www.springframework.org/schema/integration
 			http://www.springframework.org/schema/integration/spring-integration.xsd"
 >
-
+<!-- 
 	<bean
 		id="jmsConnectionFactory"
 		class="org.springframework.jms.connection.CachingConnectionFactory"
@@ -42,5 +42,5 @@
 		id="poller"
 		default="true"
 		fixed-delay="1000" />
-
+ -->
 </beans>

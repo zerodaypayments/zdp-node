@@ -286,7 +286,7 @@ public class ValidationNetworkClient {
 
 			log.debug( "Get balance from validation node: " + n.getUuid() );
 
-			final GetBalanceTask task = new GetBalanceTask( n.getHttpBaseUrl() + io.zdp.api.model.v1.Urls.URL_GET_BALANCE, restTemplate, request );
+			final GetBalanceTask task = new GetBalanceTask( n.getHttpBaseUrl() + Urls.URL_BALANCE, restTemplate, request );
 
 			tasks.add( task );
 
@@ -311,6 +311,7 @@ public class ValidationNetworkClient {
 					resp.setAmount( tr.getAmount() );
 					resp.setHeight( tr.getHeight() );
 					resp.setChainHash( tr.getChainHash() );
+					resp.setCurve( tr.getCurve() );
 				}
 			}
 

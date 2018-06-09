@@ -218,7 +218,8 @@
 		transaction-manager-ref="transfers-transactionManager"
 		base-package="io.zdp.node.storage.transfer.dao" />
 
-
+<!-- 
 	<beans:import resource="spring-integration-context.xml" />
+ -->
 
 </beans>

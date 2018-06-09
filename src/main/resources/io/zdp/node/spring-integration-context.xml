@@ -11,25 +11,21 @@
 		http://www.springframework.org/schema/integration/ip http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd"
 >
 
-
-<!-- 
-	<beans:import resource="spring-integration-amq-context.xml" />
 	<int-ip:tcp-connection-factory
-		id="networkNodeServer"
+		id="validationNodeServerConnectionFactory"
 		type="server"
-		host="${local.node.tcp.server.host}"
-		port="${local.node.tcp.server.port}" />
+		host="${tcp-validation-host}"
+		port="${tcp-validation-port}" />
 
 	<int-ip:tcp-inbound-gateway
-		id="gatewayNetworkNode"
-		connection-factory="networkNodeServer"
+		connection-factory="validationNodeServerConnectionFactory"
 		request-channel="serverBytes2StringChannel"
 		error-channel="errorChannel" />
 
-	<int:channel id="toNetworkNodeServer" />
+	<int:channel id="validationNodeIncomingTransfersChannel" />
 
 	<int:service-activator
-		input-channel="toNetworkNodeServer"
+		input-channel="validationNodeIncomingTransfersChannel"
 		ref="networkServer"
 		method="process" />
 
@@ -42,6 +38,5 @@
 		id="errorHandler"
 		input-channel="errorChannel"
 		expression="payload.failedMessage.payload + ':' + payload.cause.message" />
- -->
  
 </beans>

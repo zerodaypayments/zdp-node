@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -40,6 +41,8 @@ public class MainWindow {
 
 	@Autowired
 	private MainPanel mainPanel;
+
+	private JButton btnOnline;
 
 	@PostConstruct
 	public void init ( ) {

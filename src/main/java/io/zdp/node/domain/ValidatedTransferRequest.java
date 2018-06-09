@@ -32,7 +32,7 @@ public final class ValidatedTransferRequest implements Serializable {
 	private String memo;
 
 	private long time;
-
+	
 	public byte[] getTransactionSignature() {
 		return transactionSignature;
 	}

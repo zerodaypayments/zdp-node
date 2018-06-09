@@ -84,6 +84,7 @@ public class AccountService {
 
 		if ( account == null ) {
 			account = new Account();
+			account.setUuid( accountUuid );
 		}
 
 		account.setBalance( new BigDecimal( remoteResponse.getAmount() ) );
@@ -95,7 +96,7 @@ public class AccountService {
 	}
 
 	@Transactional ( readOnly = true )
-	private GetBalanceResponse getLocalAccountBalance ( GetBalanceRequest req ) {
+	public GetBalanceResponse getLocalAccountBalance ( GetBalanceRequest req ) {
 
 		final GetBalanceResponse resp = new GetBalanceResponse();
 
@@ -105,6 +106,7 @@ public class AccountService {
 		Account account = this.accountDao.findByUuid( accountUuid );
 
 		if ( account != null ) {
+			resp.setCurve( account.getCurve() );
 			resp.setAmount( account.getBalance().toPlainString() );
 			resp.setHeight( account.getHeight() );
 			resp.setChainHash( account.getTransferHash() );

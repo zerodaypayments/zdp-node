@@ -29,6 +29,10 @@ public class Node {
 
 	private static final String PARAM_UUID = "uuid";
 
+	private static final String PARAM_TCP_V_PORT = "tcp-validation-port";
+
+	private static final String PARAM_TCP_V_HOST = "tcp-validation-host";
+
 	private static final String DDASH = "--";
 
 	private static final String EQUALS = "=";
@@ -95,6 +99,10 @@ public class Node {
 					localNode.setPrivateKey( value );
 				} else if ( PARAM_DEBUG.equalsIgnoreCase( key ) ) {
 					debugMode = Boolean.parseBoolean( value );
+				} else if ( PARAM_TCP_V_HOST.equalsIgnoreCase( key ) ) {
+					System.setProperty( PARAM_TCP_V_HOST, value );
+				} else if ( PARAM_TCP_V_PORT.equalsIgnoreCase( key ) ) {
+					System.setProperty( PARAM_TCP_V_PORT, value );
 				}
 
 			}
