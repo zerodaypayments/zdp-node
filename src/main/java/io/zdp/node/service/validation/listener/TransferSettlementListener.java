@@ -1,26 +1,23 @@
-package io.zdp.node.service.validation;
+package io.zdp.node.service.validation.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import io.zdp.model.network.NetworkTopologyService;
+import io.zdp.node.service.validation.model.TransferSettlement;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
+import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 import io.zdp.node.storage.transfer.domain.TransferHeader;
 import io.zdp.node.storage.transfer.service.TransferHeaderService;
-import io.zdp.node.web.api.validation.model.ValidationCommitRequest;
 
-@Service
-public class CommitService {
+@Component(value = "transferSettlementListener")
+public class TransferSettlementListener {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-
-	@Autowired
-	private LockedAccountsCache accountsInProgressCache;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private NetworkTopologyService networkService;
@@ -29,19 +26,22 @@ public class CommitService {
 	private AccountService accountService;
 
 	@Autowired
+	private TransferHeaderDao transferHeaderDao;
+
+	@Autowired
 	private TransferHeaderService transferHeaderService;
 
 	@Autowired
 	private CurrentTransferDao currentTransferDao;
 
-	@Transactional(readOnly = false)
-	public boolean commit(ValidationCommitRequest req) {
+	public void process(TransferSettlement req) {
 
-		log.debug("Commit request: " + req);
+		log.debug("Transfer settlement: " + req);
 
 		// Validate request (otherwise malicious actors can start locking accounts)
 		if (false == networkService.isValidServerRequest(req.getServerUuid(), req.toHashData(), req.getRequestSignature())) {
-			return false;
+			log.error("Signature not verified");
+			return;
 		}
 
 		updateAccounts(req);
@@ -50,14 +50,9 @@ public class CommitService {
 
 		saveCurrentTransfer(req);
 
-		accountsInProgressCache.remove(req.getFromAccount().getUuid());
-		accountsInProgressCache.remove(req.getToAccount().getUuid());
-
-		return true;
-
 	}
 
-	private void saveCurrentTransfer(ValidationCommitRequest req) {
+	private void saveCurrentTransfer(TransferSettlement req) {
 
 		log.debug("saveCurrentTransfer: " + req.getFromAccount());
 
@@ -65,11 +60,11 @@ public class CommitService {
 
 	}
 
-	private void saveTransferHeader(ValidationCommitRequest req) {
+	private void saveTransferHeader(TransferSettlement req) {
 		transferHeaderService.save(new TransferHeader(req.getTransferSignature()));
 	}
 
-	private void updateAccounts(ValidationCommitRequest req) {
+	private void updateAccounts(TransferSettlement req) {
 
 		{
 			// Update or save FROM account;

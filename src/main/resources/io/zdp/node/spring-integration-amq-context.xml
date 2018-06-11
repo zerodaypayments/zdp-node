@@ -3,12 +3,12 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:integration="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
-			http://www.springframework.org/schema/integration
-			http://www.springframework.org/schema/integration/spring-integration.xsd"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
+			http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd"
 >
-<!-- 
+
 	<bean
 		id="jmsConnectionFactory"
 		class="org.springframework.jms.connection.CachingConnectionFactory"
@@ -30,7 +30,7 @@
 			name="cacheProducers"
 			value="true" />
 	</bean>
-
+<!-- 
 	<bean
 		id="newTransferQueue"
 		class="org.apache.activemq.command.ActiveMQQueue"
@@ -43,4 +43,5 @@
 		default="true"
 		fixed-delay="1000" />
  -->
+
 </beans>

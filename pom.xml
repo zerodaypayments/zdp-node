@@ -18,15 +18,12 @@
 
 		<!-- versions -->
 		<zdp.version>1.0</zdp.version>
-		<spring.version>5.0.5.RELEASE</spring.version>
-		<spring.integration.version>5.0.4.RELEASE</spring.integration.version>
-		<spring.data.version>2.0.6.RELEASE</spring.data.version>
-		<activemq.version>5.15.3</activemq.version>
-		<guava.version>25.0-jre</guava.version>
+		<spring.version>5.0.6.RELEASE</spring.version>
+		<spring.data.version>2.0.7.RELEASE</spring.data.version>
+		<activemq.version>5.15.4</activemq.version>
 		<jackson.version>2.9.5</jackson.version>
-		<hibernate.version>5.2.17.Final</hibernate.version>
-		<jetty.version>9.4.10.v20180503</jetty.version>
-		<apache.http.client>4.5.5</apache.http.client>
+		<hibernate.version>5.3.1.Final</hibernate.version>
+		<jetty.version>9.4.11.v20180605</jetty.version>
 	</properties>
 
 	<build>
@@ -36,15 +33,15 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${apache.http.client}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>net.glxn</groupId>
 			<artifactId>qrgen</artifactId>
 			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
 		</dependency>
 
 		<dependency>
@@ -72,6 +69,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
+			<version>${activemq.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.11.0</version>
@@ -87,18 +90,6 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-			<version>4.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
 		</dependency>
 
 		<dependency>
@@ -120,24 +111,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jms</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
 			<version>${spring.data.version}</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>org.springframework.integration</groupId> <artifactId>spring-integration-ip</artifactId> 
-			<version>${spring.integration.version}</version> </dependency> -->
-
-		<dependency>
-			<groupId>org.springframework.integration</groupId>
-			<artifactId>spring-integration-jms</artifactId>
-			<version>${spring.integration.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
 		</dependency>
 
 		<dependency>
@@ -150,12 +132,6 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk14</artifactId>
 			<version>1.59</version>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>javax.jms-api</artifactId>
-			<version>2.0.1</version>
 		</dependency>
 
 		<dependency>

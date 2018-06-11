@@ -1,25 +1,23 @@
-package io.zdp.node.domain;
+package io.zdp.node.service.validation.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
-import io.zdp.api.model.v1.TransferRequest;
+import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.util.encoders.Hex;
+
+import io.zdp.crypto.Hashing;
 import io.zdp.crypto.account.ZDPAccountUuid;
-import io.zdp.node.storage.account.domain.Account;
 
 @SuppressWarnings("serial")
-public final class ValidatedTransferRequest implements Serializable {
-
-	private TransferRequest request;
+public final class UnconfirmedTransfer implements Serializable {
 
 	private ZDPAccountUuid fromAccountUuid;
 
 	private ZDPAccountUuid toAccountUuid;
-
-	private Account fromAccount;
-
-	private Account toAccount;
 
 	private BigDecimal amount;
 
@@ -31,8 +29,53 @@ public final class ValidatedTransferRequest implements Serializable {
 
 	private String memo;
 
-	private long time;
-	
+	private long time = System.currentTimeMillis();
+
+	private String serverUuid;
+
+	private byte[] serverSignature;
+
+	public byte[] toHashData() {
+
+		byte[] hash = fromAccountUuid.toHashData();
+
+		hash = ArrayUtils.addAll(hash, toAccountUuid.toHashData());
+
+		hash = ArrayUtils.addAll(hash, amount.unscaledValue().toByteArray());
+
+		hash = ArrayUtils.addAll(hash, fee.unscaledValue().toByteArray());
+
+		hash = ArrayUtils.addAll(hash, transactionSignature);
+
+		hash = ArrayUtils.addAll(hash, transactionUuid.getBytes(StandardCharsets.UTF_8));
+
+		hash = ArrayUtils.addAll(hash, memo.getBytes(StandardCharsets.UTF_8));
+
+		hash = ArrayUtils.addAll(hash, ByteBuffer.allocate(4).putLong(time).array());
+
+		hash = ArrayUtils.addAll(hash, serverUuid.getBytes(StandardCharsets.UTF_8));
+
+		hash = ArrayUtils.addAll(hash, serverSignature);
+
+		return Hashing.ripemd160(hash);
+	}
+
+	public String getServerUuid() {
+		return serverUuid;
+	}
+
+	public void setServerUuid(String serverUuid) {
+		this.serverUuid = serverUuid;
+	}
+
+	public byte[] getServerSignature() {
+		return serverSignature;
+	}
+
+	public void setServerSignature(byte[] serverSignature) {
+		this.serverSignature = serverSignature;
+	}
+
 	public byte[] getTransactionSignature() {
 		return transactionSignature;
 	}
@@ -53,10 +96,6 @@ public final class ValidatedTransferRequest implements Serializable {
 		return time;
 	}
 
-	public void setTime(long time) {
-		this.time = time;
-	}
-
 	public BigDecimal getAmount() {
 		return amount.setScale(8, RoundingMode.HALF_DOWN);
 	}
@@ -71,14 +110,6 @@ public final class ValidatedTransferRequest implements Serializable {
 
 	public void setTransactionUuid(String transactionUuid) {
 		this.transactionUuid = transactionUuid;
-	}
-
-	public TransferRequest getRequest() {
-		return request;
-	}
-
-	public void setRequest(TransferRequest request) {
-		this.request = request;
 	}
 
 	public ZDPAccountUuid getFromAccountUuid() {
@@ -97,22 +128,6 @@ public final class ValidatedTransferRequest implements Serializable {
 		this.toAccountUuid = toAccountUuid;
 	}
 
-	public Account getFromAccount() {
-		return fromAccount;
-	}
-
-	public void setFromAccount(Account fromAccount) {
-		this.fromAccount = fromAccount;
-	}
-
-	public Account getToAccount() {
-		return toAccount;
-	}
-
-	public void setToAccount(Account toAccount) {
-		this.toAccount = toAccount;
-	}
-
 	public BigDecimal getTotalAmount() {
 		return amount.add(fee).setScale(8, RoundingMode.HALF_DOWN);
 	}
@@ -127,7 +142,6 @@ public final class ValidatedTransferRequest implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ValidatedTransferRequest [getTransactionUuid()=" + getTransactionUuid() + ", getRequest()=" + getRequest() + ", getFromAccountUuid()=" + getFromAccountUuid() + ", getToAccountUuid()=" + getToAccountUuid() + ", getFromAccount()=" + getFromAccount() + ", getToAccount()=" + getToAccount() + ", getTotalAmount()=" + getTotalAmount() + ", getFee()=" + getFee() + "]";
+		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Hex.toHexString(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + "]";
 	}
-
 }

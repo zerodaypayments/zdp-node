@@ -18,7 +18,7 @@ import io.zdp.client.ZdpClient;
 import io.zdp.node.Node;
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
-import io.zdp.node.network.validation.NetworkValidationTopologyService;
+import io.zdp.node.network.validation.ValidationNetworkTopologyService;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
@@ -33,7 +33,7 @@ public class ValidationNodesPanel {
 	private JEditorPane textArea;
 
 	@Autowired
-	private NetworkValidationTopologyService networkTopologyService;
+	private ValidationNetworkTopologyService networkTopologyService;
 
 	@Autowired
 	private ZdpClient zdpClient;

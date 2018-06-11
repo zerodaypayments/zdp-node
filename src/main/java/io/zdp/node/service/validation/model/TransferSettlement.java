@@ -1,4 +1,4 @@
-package io.zdp.node.web.api.validation.model;
+package io.zdp.node.service.validation.model;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +11,7 @@ import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
 @SuppressWarnings("serial")
-public class ValidationCommitRequest implements Serializable {
+public class TransferSettlement implements Serializable {
 
 	private String requestUuid = UUID.randomUUID().toString();
 

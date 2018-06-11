@@ -13,7 +13,8 @@ import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.api.model.v1.Urls;
 import io.zdp.node.error.TransferException;
-import io.zdp.node.service.TransferService;
+import io.zdp.node.service.validation.model.UnconfirmedTransfer;
+import io.zdp.node.service.validation.service.TransferService;
 
 @RestController
 public class TransferAction {
@@ -37,7 +38,12 @@ public class TransferAction {
 
 		try {
 
-			return txService.transfer(request);
+			final UnconfirmedTransfer transfer = txService.transfer(request);
+
+			TransferResponse resp = new TransferResponse();
+			resp.setUuid(transfer.getTransactionUuid());
+
+			return resp;
 
 		} catch (TransferException e) {
 

@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
-import io.zdp.node.network.validation.ValidationNetworkClient;
-import io.zdp.node.web.api.validation.ValidationTransferAction;
 
 @SuppressWarnings ( "serial" )
 @Component
@@ -49,7 +47,7 @@ public class LastTransferPanel {
 	public void refresh ( ) {
 
 		StringBuilder sb = new StringBuilder();
-
+/*
 		sb.append( "<html><table border='0' width='80%' align='center'>" );
 
 		sb.append( "<tr style=';padding:10px;'><td>ValidationNetworkClient request: </td><td>" + ValidationNetworkClient.getLastRequest() + "</td></tr>" );
@@ -71,7 +69,7 @@ public class LastTransferPanel {
 		sb.append( "<tr style=';padding:10px;'><td>isLastRollbackValidationPrepareTransferResponse: </td><td>" + ValidationTransferAction.isLastRollbackValidationPrepareTransferResponse() + "</td></tr>" );
 
 		sb.append( "</table></html>" );
-
+*/
 		textArea.setText( sb.toString() );
 
 	}

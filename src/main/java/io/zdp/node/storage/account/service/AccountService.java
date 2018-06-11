@@ -15,7 +15,6 @@ import io.zdp.api.model.v1.GetBalanceResponse;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.Curves;
 import io.zdp.crypto.account.ZDPAccountUuid;
-import io.zdp.node.network.validation.ValidationNetworkClient;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 
@@ -26,9 +25,6 @@ public class AccountService {
 
 	@Autowired
 	private AccountDao accountDao;
-
-	@Autowired
-	private ValidationNetworkClient validationNetworkClient;
 
 	@PostConstruct
 	public void init ( ) throws Exception {
@@ -61,7 +57,7 @@ public class AccountService {
 		final GetBalanceResponse remoteResponse = new GetBalanceResponse();
 
 		// Get network view on the balance
-		validationNetworkClient.getBalance( request, remoteResponse );
+		//validationNetworkClient.getBalance( request, remoteResponse );
 
 		long et = System.currentTimeMillis();
 		log.debug( "Getting balance took: " + ( et - st ) + " ms." );
@@ -106,7 +102,7 @@ public class AccountService {
 		Account account = this.accountDao.findByUuid( accountUuid );
 
 		if ( account != null ) {
-			resp.setCurve( account.getCurve() );
+		//	resp.setCurve( account.getCurve() );
 			resp.setAmount( account.getBalance().toPlainString() );
 			resp.setHeight( account.getHeight() );
 			resp.setChainHash( account.getTransferHash() );
