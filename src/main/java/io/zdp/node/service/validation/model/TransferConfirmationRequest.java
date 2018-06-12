@@ -16,7 +16,7 @@ public class TransferConfirmationRequest extends NetworkBaseSignedObject {
 	private byte[] fromAccountUuid;
 
 	private byte[] toAccountUuid;
-
+	
 	public byte[] getTransactionUuid() {
 		return transactionUuid;
 	}

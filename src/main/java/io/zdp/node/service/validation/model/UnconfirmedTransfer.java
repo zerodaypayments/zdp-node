@@ -3,13 +3,12 @@ package io.zdp.node.service.validation.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 
-import io.zdp.crypto.Hashing;
 import io.zdp.crypto.account.ZDPAccountUuid;
 
 @SuppressWarnings("serial")
@@ -31,49 +30,10 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	private long time = System.currentTimeMillis();
 
-	private String serverUuid;
+	private List<TransferConfirmationResponse> confirmations = new ArrayList<>();
 
-	private byte[] serverSignature;
-
-	public byte[] toHashData() {
-
-		byte[] hash = fromAccountUuid.toHashData();
-
-		hash = ArrayUtils.addAll(hash, toAccountUuid.toHashData());
-
-		hash = ArrayUtils.addAll(hash, amount.unscaledValue().toByteArray());
-
-		hash = ArrayUtils.addAll(hash, fee.unscaledValue().toByteArray());
-
-		hash = ArrayUtils.addAll(hash, transactionSignature);
-
-		hash = ArrayUtils.addAll(hash, transactionUuid.getBytes(StandardCharsets.UTF_8));
-
-		hash = ArrayUtils.addAll(hash, memo.getBytes(StandardCharsets.UTF_8));
-
-		hash = ArrayUtils.addAll(hash, ByteBuffer.allocate(4).putLong(time).array());
-
-		hash = ArrayUtils.addAll(hash, serverUuid.getBytes(StandardCharsets.UTF_8));
-
-		hash = ArrayUtils.addAll(hash, serverSignature);
-
-		return Hashing.ripemd160(hash);
-	}
-
-	public String getServerUuid() {
-		return serverUuid;
-	}
-
-	public void setServerUuid(String serverUuid) {
-		this.serverUuid = serverUuid;
-	}
-
-	public byte[] getServerSignature() {
-		return serverSignature;
-	}
-
-	public void setServerSignature(byte[] serverSignature) {
-		this.serverSignature = serverSignature;
+	public List<TransferConfirmationResponse> getConfirmations() {
+		return confirmations;
 	}
 
 	public byte[] getTransactionSignature() {

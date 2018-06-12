@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.service.validation.LockedAccountsCache;
 import io.zdp.node.service.validation.TransferMemoryPool;
 import io.zdp.node.service.validation.listener.NewTransferGateway;
+import io.zdp.node.service.validation.model.TransferConfirmationRequest;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
@@ -35,6 +37,12 @@ public class TransferService {
 	@Autowired
 	private TransferConfirmationService transferConfirmationService;
 
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
+
+	@Autowired
+	private LockedAccountsCache lockedAccountsCache;
+	
 	/**
 	 * Make a transfer
 	 */
@@ -43,18 +51,38 @@ public class TransferService {
 		log.debug("Request: " + request);
 
 		// Validate and enrich transfer request
-		final UnconfirmedTransfer newTransferRequest = validationService.validate(request);
+		final UnconfirmedTransfer unconfirmedTransaction = validationService.validate(request);
 
-		// Broadcast new un-confirmed transfer to Validation network 
-		newTransferGateway.send(newTransferRequest);
-
-		// Confirm  transaction locally
-		final TransferConfirmationResponse confirmedTransaction = transferConfirmationService.confirm(newTransferRequest);
+		// Broadcast new un-confirmed transfer to Validation network
+		final TransferConfirmationRequest transferConfirmationRequest = toTransferConfirmationRequest(unconfirmedTransaction);
+		newTransferGateway.send(transferConfirmationRequest);
 
 		// Add confirmed transfer to a local memory pool
-		memoryPool.add(confirmedTransaction);
+		memoryPool.add(unconfirmedTransaction);
 
-		return newTransferRequest;
+		// Confirm transaction locally
+		final TransferConfirmationResponse confirmedTransaction = transferConfirmationService.confirm(transferConfirmationRequest);
+
+		unconfirmedTransaction.getConfirmations().add(confirmedTransaction);
+		
+		return unconfirmedTransaction;
+	}
+
+	private TransferConfirmationRequest toTransferConfirmationRequest(UnconfirmedTransfer unconfirmedTransaction) {
+
+		TransferConfirmationRequest req = new TransferConfirmationRequest();
+
+		req.setFromAccountUuid(unconfirmedTransaction.getFromAccountUuid().getPublicKeyHash());
+		req.setToAccountUuid(unconfirmedTransaction.getToAccountUuid().getPublicKeyHash());
+		req.setTransactionUuid(unconfirmedTransaction.getTransactionSignature());
+
+		try {
+			validationNodeSigner.sign(req);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+		}
+
+		return req;
 	}
 
 }

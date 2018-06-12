@@ -15,7 +15,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
-import io.zdp.node.service.validation.model.TransferConfirmationResponse;
+import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
 /**
  * 
@@ -27,37 +27,37 @@ import io.zdp.node.service.validation.model.TransferConfirmationResponse;
 @Service
 public class TransferMemoryPool {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger( this.getClass() );
 
-	private Cache<String, TransferConfirmationResponse> cache;
+	private Cache < String, UnconfirmedTransfer > cache;
 
 	@PostConstruct
-	public void init() {
+	public void init ( ) {
 
-		RemovalListener<String, TransferConfirmationResponse> listener = new RemovalListener<String, TransferConfirmationResponse>() {
+		RemovalListener < String, UnconfirmedTransfer > listener = new RemovalListener < String, UnconfirmedTransfer >() {
 
 			@Override
-			public void onRemoval(RemovalNotification<String, TransferConfirmationResponse> notification) {
-				log.debug("Transfer " + notification.getKey() + " removed from memory pool");
+			public void onRemoval ( RemovalNotification < String, UnconfirmedTransfer > notification ) {
+				log.debug( "Transfer " + notification.getKey() + " removed from memory pool" );
 			}
 
 		};
 
-		cache = CacheBuilder.newBuilder().removalListener(listener).maximumSize(10000000L).expireAfterWrite(1, TimeUnit.MINUTES).build();
+		cache = CacheBuilder.newBuilder().removalListener( listener ).maximumSize( 10000000L ).expireAfterWrite( 1, TimeUnit.MINUTES ).build();
 
 	}
 
-	@Scheduled(fixedDelay = DateUtils.MILLIS_PER_SECOND * 4)
-	public void log() {
-		log.debug("Memory pool size: " + cache.size());
+	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 4 )
+	public void log ( ) {
+		log.debug( "Memory pool size: " + cache.size() );
 	}
 
-	public void add(TransferConfirmationResponse c) {
-		cache.put(c.getTransferUuid(), c);
+	public void add ( UnconfirmedTransfer c ) {
+		cache.put( c.getTransactionUuid(), c );
 	}
 
-	public TransferConfirmationResponse get(String uuid) {
-		return cache.getIfPresent(uuid);
+	public UnconfirmedTransfer get ( String uuid ) {
+		return cache.getIfPresent( uuid );
 	}
 
 }

@@ -5,12 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.zdp.api.model.v1.TransferRequest;
-import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.model.network.NetworkTopologyService;
+import io.zdp.node.network.validation.ValidationNetworkMQManager;
 import io.zdp.node.service.validation.LockedAccountsCache;
+import io.zdp.node.service.validation.model.TransferConfirmationRequest;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse;
-import io.zdp.node.service.validation.model.TransferConfirmationResponse.Status;
+import io.zdp.node.service.validation.service.TransferConfirmationService;
+import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
@@ -33,52 +34,38 @@ public class NewTransferListener {
 	private LockedAccountsCache lockedAccountsCache;
 
 	@Autowired
-	private TransferConfirmationGateway transferConfirmationGateway;
+	private ValidationNetworkMQManager  validationNetworkMQManager;
+	
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
+	
+	@Autowired
+	private TransferConfirmationService transferConfirmationService;
+	
 
-	public void process(TransferRequest req) {
-/*
+	public void process(TransferConfirmationRequest req) {
+
 		log.debug("New transfer: " + req);
-
-		final ZDPAccountUuid from = new ZDPAccountUuid(req.getFromAccountUuid());
-		final ZDPAccountUuid to = new ZDPAccountUuid(req.getToAccountUuid());
-
-		// Validate request (otherwise malicious actors can start locking accounts)
-		if (false == networkService.isValidServerRequest(req.getServerUuid(), req.toHashData(), req.getSignedRequest())) {
-			transferConfirmationGateway.send(new TransferConfirmation(TransferConfirmation.Status.UNAUTHORIZED));
-			return;
-		}
-
-		// Transaction replay?
-		if (transferHeaderDao.findByUuid(req.getRawTransferUuid()) != null) {
-			transferConfirmationGateway.send(new TransferConfirmation(Status.REPLAY_DETECTED));
-			return;
-		}
-
-		// If in 'current transactions' cache on any of the nodes -> stop
-		if (lockedAccountsCache.inProgress(req.getFromAccountUuid())) {
-			transferConfirmationGateway.send(new TransferConfirmation(Status.ACCOUNT_LOCKED));
-			return;
-		}
-
-		if (lockedAccountsCache.inProgress(req.getToAccountUuid())) {
-			transferConfirmationGateway.send(new TransferConfirmation(Status.ACCOUNT_LOCKED));
-			return;
+		
+		if (false ==validationNodeSigner.isValidSignature(req) ) {
+			
 		}
 
 		// Load account from local storage
-		Account fromAccount = this.accountService.findByUuid(from.getPublicKeyHash());
-		Account toAccount = this.accountService.findByUuid(to.getPublicKeyHash());
+		Account fromAccount = this.accountService.findByUuid(req.getFromAccountUuid());
+		Account toAccount = this.accountService.findByUuid(req.getToAccountUuid());
 
 		// Start transaction
 		lockedAccountsCache.add(req.getFromAccountUuid());
 		lockedAccountsCache.add(req.getToAccountUuid());
 
-		TransferConfirmation resp = new TransferConfirmation(Status.APPROVED);
+		TransferConfirmationResponse resp = new TransferConfirmationResponse();
 		resp.setFromAccount(fromAccount);
 		resp.setToAccount(toAccount);
+		resp.setTransferUuid(transferUuid);
 
-		transferConfirmationGateway.send(resp);
-*/
+		validationNetworkMQManager.send(req.getServerUuid(),  resp);
+		
 	}
 
 }

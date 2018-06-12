@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.crypto.Signing;
 import io.zdp.node.service.NodeConfigurationService;
-import io.zdp.node.service.validation.listener.TransferConfirmationGateway;
+import io.zdp.node.service.validation.LockedAccountsCache;
+import io.zdp.node.service.validation.model.TransferConfirmationRequest;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse.Status;
-import io.zdp.node.service.validation.model.UnconfirmedTransfer;
+import io.zdp.node.storage.account.domain.Account;
+import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 
 /**
@@ -31,9 +33,15 @@ public class TransferConfirmationService {
 	private TransferHeaderDao transferHeaderDao;
 
 	@Autowired
-	private TransferConfirmationGateway transferConfirmationGateway;
+	private AccountService accountService;
 
-	public TransferConfirmationResponse confirm(UnconfirmedTransfer t) {
+	@Autowired
+	private LockedAccountsCache lockedAccountsCache;
+
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
+
+	public TransferConfirmationResponse confirm(TransferConfirmationRequest t) {
 
 		TransferConfirmationResponse confirmation = null;
 
@@ -58,23 +66,55 @@ public class TransferConfirmationService {
 			log.error("Error: ", e);
 		}
 
-		this.transferConfirmationGateway.send(confirmation);
-
 		return confirmation;
 
 	}
 
-	public TransferConfirmationResponse process(UnconfirmedTransfer t) {
+	/**
+	 * Load accounts, check for replay and locked accounts and sign the response
+	 * and lock accounts
+	 */
+	public TransferConfirmationResponse process(TransferConfirmationRequest t) {
 
 		TransferConfirmationResponse c = new TransferConfirmationResponse();
 
+		// Locked?
+		if (lockedAccountsCache.inProgress(t.getFromAccountUuid())) {
+			c.setStatus(Status.ACCOUNT_LOCKED);
+			return c;
+		}
+
+		if (lockedAccountsCache.inProgress(t.getToAccountUuid())) {
+			c.setStatus(Status.ACCOUNT_LOCKED);
+			return c;
+		}
+
 		// Check if such a tx exists, if so, return
-		if (transferHeaderDao.findByUuid(t.getTransactionSignature()) != null) {
+		if (transferHeaderDao.findByUuid(t.getTransactionUuid()) != null) {
 			c.setStatus(Status.REPLAY_DETECTED);
 			return c;
 		}
 
-		return null;
+		// Locked accounts?
+		Account fromAccount = this.accountService.findByUuid(t.getFromAccountUuid());
+		Account toAccount = this.accountService.findByUuid(t.getToAccountUuid());
+
+		c.setFromAccount(fromAccount);
+		c.setToAccount(toAccount);
+		c.setStatus(Status.OK);
+		c.setTransferUuid(t.getTransactionUuid());
+
+		try {
+			validationNodeSigner.sign(c);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+		}
+
+		// Lock accounts
+		this.lockedAccountsCache.add(fromAccount.getUuidAsBytes());
+		this.lockedAccountsCache.add(toAccount.getUuidAsBytes());
+
+		return c;
 	}
 
 }

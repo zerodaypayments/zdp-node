@@ -13,6 +13,7 @@ import io.zdp.node.storage.account.domain.Account;
 public class TransferConfirmationResponse extends NetworkBaseSignedObject {
 
 	public static enum Status {
+		OK, //
 		ERROR, //
 		ACCOUNT_LOCKED, //
 		UNAUTHORIZED, //
@@ -25,7 +26,7 @@ public class TransferConfirmationResponse extends NetworkBaseSignedObject {
 
 	private Status status;
 
-	private String transferUuid;
+	private byte[] transferUuid;
 
 	public TransferConfirmationResponse() {
 		super();
@@ -39,7 +40,7 @@ public class TransferConfirmationResponse extends NetworkBaseSignedObject {
 	@Override
 	public byte[] toHash() {
 
-		byte[] hash = transferUuid.getBytes(StandardCharsets.UTF_8);
+		byte[] hash = ArrayUtils.addAll(transferUuid, null);
 
 		if (fromAccount != null) {
 			hash = ArrayUtils.addAll(hash, fromAccount.toHashSignature());
@@ -56,11 +57,11 @@ public class TransferConfirmationResponse extends NetworkBaseSignedObject {
 		return hash;
 	}
 
-	public String getTransferUuid() {
+	public byte[] getTransferUuid() {
 		return transferUuid;
 	}
 
-	public void setTransferUuid(String transferUuid) {
+	public void setTransferUuid(byte[] transferUuid) {
 		this.transferUuid = transferUuid;
 	}
 

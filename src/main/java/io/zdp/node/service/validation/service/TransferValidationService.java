@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
@@ -19,6 +20,7 @@ import io.zdp.crypto.Signing;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.common.StringHelper;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.service.validation.LockedAccountsCache;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
 /**
@@ -31,6 +33,9 @@ import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 public class TransferValidationService {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	private LockedAccountsCache lockedAccountsCache;
 
 	public UnconfirmedTransfer validate(final TransferRequest request) throws TransferException {
 
@@ -78,6 +83,17 @@ public class TransferValidationService {
 			}
 
 			final ZDPAccountUuid toAccountUuid = new ZDPAccountUuid(request.getTo());
+
+			// If locked, stop
+			if (lockedAccountsCache.inProgress(fromAccountUuid.getPublicKeyHash())) {
+				log.error("Locked FROM account");
+				throw new TransferException(TransferResponse.ERROR_LOCKED_FROM_ACCOUNT);
+			}
+
+			if (lockedAccountsCache.inProgress(toAccountUuid.getPublicKeyHash())) {
+				log.error("Locked TO account");
+				throw new TransferException(TransferResponse.ERROR_LOCKED_TO_ACCOUNT);
+			}
 
 			// Validate signature
 			final String pubKeyCurve = fromAccountUuid.getCurve();
