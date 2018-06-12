@@ -43,11 +43,8 @@ public class LocalMQBroker {
 
 	}
 
-	public void receive() {
-	}
-
 	public void send(TransferConfirmationRequest transferConfirmationRequest) {
-		
+
 	}
 
 }
