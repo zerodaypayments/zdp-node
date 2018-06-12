@@ -29,9 +29,9 @@ public class Node {
 
 	private static final String PARAM_UUID = "uuid";
 
-	private static final String PARAM_AMQ_VALIDATION_PORT = "amq-validation-port";
+	public static final String PARAM_AMQ_VALIDATION_PORT = "amq-validation-port";
 
-	private static final String PARAM_AMQ_VALIDATION_HOST = "amq-validation-host";
+	public static final String PARAM_AMQ_VALIDATION_HOST = "amq-validation-host";
 
 	private static final String DDASH = "--";
 

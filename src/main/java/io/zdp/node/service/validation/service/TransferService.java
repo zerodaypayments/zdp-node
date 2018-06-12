@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.node.error.TransferException;
+import io.zdp.node.network.validation.LocalMQBroker;
 import io.zdp.node.service.validation.LockedAccountsCache;
 import io.zdp.node.service.validation.TransferMemoryPool;
-import io.zdp.node.service.validation.listener.NewTransferGateway;
 import io.zdp.node.service.validation.model.TransferConfirmationRequest;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
@@ -29,7 +29,7 @@ public class TransferService {
 	private TransferValidationService validationService;
 
 	@Autowired
-	private NewTransferGateway newTransferGateway;
+	private LocalMQBroker validationNetworkNodeMQBroker;
 
 	@Autowired
 	private TransferMemoryPool memoryPool;
@@ -55,7 +55,7 @@ public class TransferService {
 
 		// Broadcast new un-confirmed transfer to Validation network
 		final TransferConfirmationRequest transferConfirmationRequest = toTransferConfirmationRequest(unconfirmedTransaction);
-		newTransferGateway.send(transferConfirmationRequest);
+		validationNetworkNodeMQBroker.send(transferConfirmationRequest);
 
 		// Add confirmed transfer to a local memory pool
 		memoryPool.add(unconfirmedTransaction);

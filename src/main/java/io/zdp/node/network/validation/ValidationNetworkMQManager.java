@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import io.zdp.model.network.NetworkNode;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.NodeConfigurationService;
-import io.zdp.node.service.validation.listener.TransferConfirmationGateway;
 import io.zdp.node.service.validation.model.TransferConfirmationResponse;
 
 @Service
@@ -50,7 +49,7 @@ public class ValidationNetworkMQManager {
 		JmsTemplate template = new JmsTemplate(pcf);
 		template.setDeliveryPersistent(false);
 
-		template.convertAndSend(TransferConfirmationGateway.QUEUE_TRANSFER_CONFIRMATION, c);
+//S		template.convertAndSend(TransferConfirmationGateway.QUEUE_TRANSFER_CONFIRMATION, c);
 		
 	}
 

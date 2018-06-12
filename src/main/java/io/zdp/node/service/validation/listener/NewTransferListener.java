@@ -62,7 +62,7 @@ public class NewTransferListener {
 		TransferConfirmationResponse resp = new TransferConfirmationResponse();
 		resp.setFromAccount(fromAccount);
 		resp.setToAccount(toAccount);
-		resp.setTransferUuid(transferUuid);
+//		resp.setTransferUuid(transferUuid);
 
 		validationNetworkMQManager.send(req.getServerUuid(),  resp);
 		
