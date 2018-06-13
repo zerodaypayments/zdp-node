@@ -9,15 +9,19 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.node.error.TransferException;
-import io.zdp.node.network.validation.LocalMQBroker;
-import io.zdp.node.service.validation.LockedAccountsCache;
-import io.zdp.node.service.validation.TransferMemoryPool;
-import io.zdp.node.service.validation.model.TransferConfirmationRequest;
-import io.zdp.node.service.validation.model.TransferConfirmationResponse;
+import io.zdp.node.network.validation.NetworkMQ;
+import io.zdp.node.service.validation.UnconfirmedTransferMemoryPool;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequest;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsService;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
+/**
+ * Process a transfer from a client, initiate Validation network confirmation
+ * process
+ */
 @Service
-public class TransferService {
+public class NewTransfersService {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -28,21 +32,18 @@ public class TransferService {
 	@Autowired
 	private TransferValidationService validationService;
 
-	@Autowired
-	private LocalMQBroker validationNetworkNodeMQBroker;
+	 @Autowired
+	private NetworkMQ validationNetworkNodeMQBroker;
 
 	@Autowired
-	private TransferMemoryPool memoryPool;
+	private UnconfirmedTransferMemoryPool memoryPool;
 
 	@Autowired
-	private TransferConfirmationService transferConfirmationService;
+	private GetNodeAccountsService transferConfirmationService;
 
 	@Autowired
 	private ValidationNodeSigner validationNodeSigner;
 
-	@Autowired
-	private LockedAccountsCache lockedAccountsCache;
-	
 	/**
 	 * Make a transfer
 	 */
@@ -51,26 +52,26 @@ public class TransferService {
 		log.debug("Request: " + request);
 
 		// Validate and enrich transfer request
-		final UnconfirmedTransfer unconfirmedTransaction = validationService.validate(request);
+		final UnconfirmedTransfer unconfirmedTransfer = validationService.validate(request);
 
 		// Broadcast new un-confirmed transfer to Validation network
-		final TransferConfirmationRequest transferConfirmationRequest = toTransferConfirmationRequest(unconfirmedTransaction);
-		validationNetworkNodeMQBroker.send(transferConfirmationRequest);
+		final GetNodeAccountsRequest getNodeAccountsRequest = toGetNodeAccountsRequest(unconfirmedTransfer);
+		validationNetworkNodeMQBroker.broadcastToValidationNetwork(getNodeAccountsRequest);
 
 		// Add confirmed transfer to a local memory pool
-		memoryPool.add(unconfirmedTransaction);
+		memoryPool.add(unconfirmedTransfer);
 
 		// Confirm transaction locally
-		final TransferConfirmationResponse confirmedTransaction = transferConfirmationService.confirm(transferConfirmationRequest);
+		final GetNodeAccountsResponse localGetNodeAccountsResponse = transferConfirmationService.process(getNodeAccountsRequest);
 
-		unconfirmedTransaction.getConfirmations().add(confirmedTransaction);
-		
-		return unconfirmedTransaction;
+		unconfirmedTransfer.getConfirmations().add(localGetNodeAccountsResponse);
+
+		return unconfirmedTransfer;
 	}
 
-	private TransferConfirmationRequest toTransferConfirmationRequest(UnconfirmedTransfer unconfirmedTransaction) {
+	private GetNodeAccountsRequest toGetNodeAccountsRequest(UnconfirmedTransfer unconfirmedTransaction) {
 
-		TransferConfirmationRequest req = new TransferConfirmationRequest();
+		GetNodeAccountsRequest req = new GetNodeAccountsRequest();
 
 		req.setFromAccountUuid(unconfirmedTransaction.getFromAccountUuid().getPublicKeyHash());
 		req.setToAccountUuid(unconfirmedTransaction.getToAccountUuid().getPublicKeyHash());

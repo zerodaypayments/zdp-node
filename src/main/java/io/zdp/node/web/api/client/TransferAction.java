@@ -14,7 +14,7 @@ import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.api.model.v1.Urls;
 import io.zdp.node.error.TransferException;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
-import io.zdp.node.service.validation.service.TransferService;
+import io.zdp.node.service.validation.service.NewTransfersService;
 
 @RestController
 public class TransferAction {
@@ -22,13 +22,13 @@ public class TransferAction {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private TransferService txService;
+	private NewTransfersService txService;
 
 	@RequestMapping(path = Urls.URL_GET_TX_FEE)
 	@ResponseBody
 	public GetFeeResponse getFee() {
 
-		return new GetFeeResponse(TransferService.TX_FEE.toPlainString());
+		return new GetFeeResponse(NewTransfersService.TX_FEE.toPlainString());
 
 	}
 

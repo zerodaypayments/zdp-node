@@ -11,16 +11,16 @@ import org.springframework.stereotype.Service;
 import io.zdp.model.network.NetworkNode;
 import io.zdp.model.network.NetworkTopologyListener;
 import io.zdp.model.network.NetworkTopologyService;
-import io.zdp.node.service.NodeConfigurationService;
+import io.zdp.node.service.LocalNodeService;
 
 @Service
-public class ValidationNetworkTopologyService implements NetworkTopologyListener {
+public class TopologyService implements NetworkTopologyListener {
 
 	@Autowired
 	private NetworkTopologyService networkTopologyService;
 
 	@Autowired
-	private NodeConfigurationService nodeConfigurationService;
+	private LocalNodeService nodeConfigurationService;
 
 	private List<NetworkNode> nodes;
 

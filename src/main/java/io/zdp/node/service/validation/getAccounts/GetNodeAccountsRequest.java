@@ -1,15 +1,16 @@
-package io.zdp.node.service.validation.model;
+package io.zdp.node.service.validation.getAccounts;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 
 import io.zdp.crypto.Hashing;
+import io.zdp.node.service.validation.model.NetworkBaseSignedObject;
 
 /**
  * Prepare transfer response
  */
 @SuppressWarnings("serial")
-public class TransferConfirmationRequest extends NetworkBaseSignedObject {
+public class GetNodeAccountsRequest extends NetworkBaseSignedObject {
 
 	private byte[] transactionUuid;
 

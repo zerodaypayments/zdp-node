@@ -6,12 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.zdp.model.network.NetworkTopologyService;
-import io.zdp.node.service.validation.model.TransferSettlement;
-import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
-import io.zdp.node.storage.transfer.domain.TransferHeader;
 import io.zdp.node.storage.transfer.service.TransferHeaderService;
 
 @Component(value = "transferSettlementListener")
@@ -33,7 +30,7 @@ public class TransferSettlementListener {
 
 	@Autowired
 	private CurrentTransferDao currentTransferDao;
-
+/*
 	public void process(TransferSettlement req) {
 
 		log.debug("Transfer settlement: " + req);
@@ -106,5 +103,5 @@ public class TransferSettlementListener {
 		}
 
 	}
-
+*/
 }

@@ -76,7 +76,7 @@ public class Node {
 		localNode.setHostname("localhost");
 		localNode.setHttpPort(8080);
 		localNode.setAmqHostname("localhost");
-		localNode.setAmqPort(8085);
+		localNode.setAmqPort(8082);
 
 		localNode.setUuid(RANDOM_UUID);
 

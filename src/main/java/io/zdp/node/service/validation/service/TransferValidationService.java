@@ -109,7 +109,7 @@ public class TransferValidationService {
 			if (validSignature) {
 
 				c.setAmount(request.getAmountAsBigDecimal());
-				c.setFee(TransferService.TX_FEE);
+				c.setFee(NewTransfersService.TX_FEE);
 				c.setFromAccountUuid(fromAccountUuid);
 				c.setMemo(StringHelper.cleanUpMemo(request.getMemo()));
 				c.setToAccountUuid(toAccountUuid);

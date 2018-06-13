@@ -1,16 +1,17 @@
-package io.zdp.node.service.validation.model;
+package io.zdp.node.service.validation.getAccounts;
 
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import io.zdp.node.service.validation.model.NetworkBaseSignedObject;
 import io.zdp.node.storage.account.domain.Account;
 
 /**
  * Prepare transfer response
  */
 @SuppressWarnings("serial")
-public class TransferConfirmationResponse extends NetworkBaseSignedObject {
+public class GetNodeAccountsResponse extends NetworkBaseSignedObject {
 
 	public static enum Status {
 		OK, //
@@ -28,11 +29,11 @@ public class TransferConfirmationResponse extends NetworkBaseSignedObject {
 
 	private byte[] transferUuid;
 
-	public TransferConfirmationResponse() {
+	public GetNodeAccountsResponse() {
 		super();
 	}
 
-	public TransferConfirmationResponse(Status status) {
+	public GetNodeAccountsResponse(Status status) {
 		super();
 		this.status = status;
 	}

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.zdp.node.service.NodeConfigurationService;
+import io.zdp.node.service.LocalNodeService;
 
 @Component
 public class MainWindow {
@@ -37,7 +37,7 @@ public class MainWindow {
 	private Logger log = LoggerFactory.getLogger( this.getClass() );
 
 	@Autowired
-	private NodeConfigurationService nodeService;
+	private LocalNodeService nodeService;
 
 	@Autowired
 	private MainPanel mainPanel;

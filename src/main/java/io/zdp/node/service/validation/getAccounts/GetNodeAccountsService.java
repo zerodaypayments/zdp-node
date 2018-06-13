@@ -1,16 +1,14 @@
-package io.zdp.node.service.validation.service;
+package io.zdp.node.service.validation.getAccounts;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import io.zdp.crypto.Signing;
-import io.zdp.node.service.NodeConfigurationService;
 import io.zdp.node.service.validation.LockedAccountsCache;
-import io.zdp.node.service.validation.model.TransferConfirmationRequest;
-import io.zdp.node.service.validation.model.TransferConfirmationResponse;
-import io.zdp.node.service.validation.model.TransferConfirmationResponse.Status;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse.Status;
+import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
@@ -21,13 +19,10 @@ import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
  * @author sn_1970@yahoo.com
  *
  */
-@Service
-public class TransferConfirmationService {
+@Component(value = "transferConfirmationService")
+public class GetNodeAccountsService {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-
-	@Autowired
-	private NodeConfigurationService nodeConfig;
 
 	@Autowired
 	private TransferHeaderDao transferHeaderDao;
@@ -41,29 +36,21 @@ public class TransferConfirmationService {
 	@Autowired
 	private ValidationNodeSigner validationNodeSigner;
 
-	public TransferConfirmationResponse confirm(TransferConfirmationRequest t) {
+	public GetNodeAccountsResponse process(GetNodeAccountsRequest t) {
 
-		TransferConfirmationResponse confirmation = null;
+		GetNodeAccountsResponse confirmation = null;
 
 		try {
 
-			confirmation = this.process(t);
+			confirmation = this.processRequest(t);
 
 		} catch (Exception e) {
 
 			log.error("Error: ", e);
 
-			confirmation = new TransferConfirmationResponse();
+			confirmation = new GetNodeAccountsResponse();
 			confirmation.setStatus(Status.ERROR);
 
-		}
-
-		confirmation.setServerUuid(nodeConfig.getNode().getUuid());
-
-		try {
-			confirmation.setServerSignature(Signing.sign(nodeConfig.getNode().getECPrivateKey(), confirmation.toHash()));
-		} catch (Exception e) {
-			log.error("Error: ", e);
 		}
 
 		return confirmation;
@@ -74,9 +61,10 @@ public class TransferConfirmationService {
 	 * Load accounts, check for replay and locked accounts and sign the response
 	 * and lock accounts
 	 */
-	public TransferConfirmationResponse process(TransferConfirmationRequest t) {
+	@Transactional(readOnly = true)
+	private GetNodeAccountsResponse processRequest(final GetNodeAccountsRequest t) {
 
-		TransferConfirmationResponse c = new TransferConfirmationResponse();
+		final GetNodeAccountsResponse c = new GetNodeAccountsResponse();
 
 		// Locked?
 		if (lockedAccountsCache.inProgress(t.getFromAccountUuid())) {
@@ -96,8 +84,8 @@ public class TransferConfirmationService {
 		}
 
 		// Locked accounts?
-		Account fromAccount = this.accountService.findByUuid(t.getFromAccountUuid());
-		Account toAccount = this.accountService.findByUuid(t.getToAccountUuid());
+		final Account fromAccount = this.accountService.findByUuid(t.getFromAccountUuid());
+		final Account toAccount = this.accountService.findByUuid(t.getToAccountUuid());
 
 		c.setFromAccount(fromAccount);
 		c.setToAccount(toAccount);

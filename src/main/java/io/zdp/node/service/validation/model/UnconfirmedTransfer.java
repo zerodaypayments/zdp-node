@@ -10,6 +10,7 @@ import java.util.Set;
 import org.bouncycastle.util.encoders.Hex;
 
 import io.zdp.crypto.account.ZDPAccountUuid;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
 
 @SuppressWarnings("serial")
 public final class UnconfirmedTransfer implements Serializable {
@@ -30,9 +31,9 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	private long time = System.currentTimeMillis();
 
-	private List<TransferConfirmationResponse> confirmations = new ArrayList<>();
+	private List<GetNodeAccountsResponse> confirmations = new ArrayList<>();
 
-	public List<TransferConfirmationResponse> getConfirmations() {
+	public List<GetNodeAccountsResponse> getConfirmations() {
 		return confirmations;
 	}
 

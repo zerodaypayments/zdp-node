@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import io.zdp.crypto.Curves;
 import io.zdp.node.common.QTextComponentContextMenu;
-import io.zdp.node.service.NodeConfigurationService;
+import io.zdp.node.service.LocalNodeService;
 
 @Component
 public class MainPanel extends JPanel {
@@ -20,7 +20,7 @@ public class MainPanel extends JPanel {
 	private JTabbedPane tabs;
 
 	@Autowired
-	private NodeConfigurationService nodeService;
+	private LocalNodeService nodeService;
 
 	@Autowired
 	private VNLFilePanel vnlFilePanel;
