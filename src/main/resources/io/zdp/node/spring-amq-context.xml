@@ -14,8 +14,7 @@
 		persistent="false"
 	>
 		<amq:transportConnectors>
-			<amq:transportConnector
-				uri="tcp://${amq-validation-host}:${amq-validation-port}" />
+			<amq:transportConnector uri="tcp://${amq-validation-host}:${amq-validation-port}" />
 		</amq:transportConnectors>
 	</amq:broker>
 
@@ -23,15 +22,29 @@
 		id="amqFactory"
 		brokerURL="tcp://${amq-validation-host}:${amq-validation-port}" />
 
+	<!-- Broadcasting queues for Validation network nodes -->
+	  
+	<amq:topic
+		id="Q.TRANSFER.NEW.REQ"  
+		physicalName="Q.TRANSFER.NEW.REQ" />
+
+	<amq:topic
+		id="Q.TRANSFER.SETTLED"  
+		physicalName="Q.TRANSFER.SETTLED" />
+
+	<amq:topic
+		id="Q.TRANSFER.CANCELLED"  
+		physicalName="Q.TRANSFER.CANCELLED" />
+
 	<jms:annotation-driven />
 
 	<jms:listener-container connection-factory="amqFactory">
 		<jms:listener
-			destination="QUEUE.GET.TRANSFER"
+			destination="Q.TRANSFER.NEW.RESP"
 			ref="getNodeAccountsListener"
 			method="onMessage" />
 	</jms:listener-container>
-	
+
 
 
 </beans>
