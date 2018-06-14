@@ -15,17 +15,18 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.zdp.client.ZdpClient;
+import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.Node;
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
-import io.zdp.node.network.validation.TopologyService;
+import io.zdp.node.service.LocalNodeService;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 import io.zdp.node.storage.transfer.domain.TransferHeader;
 
 @Component
-@SuppressWarnings ( "serial" )
+@SuppressWarnings("serial")
 public class ValidationNodesPanel {
 
 	private JPanel panel;
@@ -33,7 +34,7 @@ public class ValidationNodesPanel {
 	private JEditorPane textArea;
 
 	@Autowired
-	private TopologyService networkTopologyService;
+	private NetworkTopologyService networkTopologyService;
 
 	@Autowired
 	private ZdpClient zdpClient;
@@ -44,86 +45,89 @@ public class ValidationNodesPanel {
 	@Autowired
 	private TransferHeaderDao transferHeaderDao;
 
-	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 2 )
-	public void refresh ( ) {
+	@Autowired
+	private LocalNodeService localNodeService;
+
+	@Scheduled(fixedDelay = DateUtils.MILLIS_PER_SECOND * 2)
+	public void refresh() {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append( "<html>" );
+		sb.append("<html>");
 
-		sb.append( "<table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>" );
+		sb.append("<table border='0' width='80%' align='center'><tr style='background:black;color:white;padding:10px;'><td>Server</td><td>Status</td></tr>");
 
-		networkTopologyService.getNodes().stream().forEach( n -> {
+		networkTopologyService.getAllBut(localNodeService.getNode()).stream().forEach(n -> {
 
-			zdpClient.setNetworkNode( n );
+			zdpClient.setNetworkNode(n);
 
 			String active = "<span style='color:green;'>OK</span>";
 			try {
 				zdpClient.ping();
-			} catch ( Exception e ) {
+			} catch (Exception e) {
 				active = "<span style='color:red;'>Not available</span>";
 			}
 
-			sb.append( "<tr style='background:#efefef;'><td>" + n.getHttpBaseUrl() + "</td><td>" + active + "</td></tr>" );
+			sb.append("<tr style='background:#efefef;'><td>" + n.getHttpBaseUrl() + "</td><td>" + active + "</td></tr>");
 
-		} );
+		});
 
-		zdpClient.setNetworkNode( null );
+		zdpClient.setNetworkNode(null);
 
-		sb.append( "</table>" );
+		sb.append("</table>");
 
-		if ( Node.isDebugMode() ) {
+		if (Node.isDebugMode()) {
 
 			// List of accounts
 
-			sb.append( "<h2>Accounts</h2>" );
+			sb.append("<h2>Accounts</h2>");
 
-			List < Account > accounts = accountDao.findAll();
-			sb.append( "Accounts count: " + accounts.size() + "<hr>" );
-			for ( Account a : accounts ) {
-				sb.append( "Account: " + a + "<hr>" );
+			List<Account> accounts = accountDao.findAll();
+			sb.append("Accounts count: " + accounts.size() + "<hr>");
+			for (Account a : accounts) {
+				sb.append("Account: " + a + "<hr>");
 			}
 
 			// List of transfers
 
-			sb.append( "<h2>Transfers</h2>" );
+			sb.append("<h2>Transfers</h2>");
 
-			List < TransferHeader > transfers = transferHeaderDao.findAll();
-			sb.append( "transfers count: " + transfers.size() + "<hr>" );
-			for ( TransferHeader th : transfers ) {
-				sb.append( "Transfer: " + th + "<hr>" );
+			List<TransferHeader> transfers = transferHeaderDao.findAll();
+			sb.append("transfers count: " + transfers.size() + "<hr>");
+			for (TransferHeader th : transfers) {
+				sb.append("Transfer: " + th + "<hr>");
 			}
 
 		}
 
-		sb.append( "</html>" );
+		sb.append("</html>");
 
-		textArea.setText( sb.toString() );
+		textArea.setText(sb.toString());
 
 	}
 
 	@PostConstruct
-	public void init ( ) {
+	public void init() {
 
-		SwingUtilities.invokeLater( ( ) -> {
+		SwingUtilities.invokeLater(() -> {
 
 			panel = new JPanel();
 
 			textArea = new JEditorPane();
-			textArea.setEditable( false );
-			textArea.setContentType( "text/html" );
+			textArea.setEditable(false);
+			textArea.setContentType("text/html");
 
-			new QTextComponentContextMenu( textArea );
+			new QTextComponentContextMenu(textArea);
 
-			SwingHelper.setFontForJText( textArea );
-			panel.setLayout( new BorderLayout() );
-			panel.add( new JScrollPane( textArea ), BorderLayout.CENTER );
+			SwingHelper.setFontForJText(textArea);
+			panel.setLayout(new BorderLayout());
+			panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-			textArea.setText( "loading..." );
-		} );
+			textArea.setText("loading...");
+		});
 	}
 
-	public JPanel getPanel ( ) {
+	public JPanel getPanel() {
 		return panel;
 	}
 
