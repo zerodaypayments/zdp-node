@@ -10,7 +10,7 @@
 >
 
 	<amq:broker
-		useJmx="false"
+		useJmx="true"
 		persistent="false"
 	>
 		<amq:transportConnectors>
@@ -21,20 +21,6 @@
 	<amq:connectionFactory
 		id="amqFactory"
 		brokerURL="tcp://${amq-validation-host}:${amq-validation-port}" />
-
-	<!-- Broadcasting queues for Validation network nodes -->
-	  
-	<amq:topic
-		id="Q.TRANSFER.NEW.REQ"  
-		physicalName="Q.TRANSFER.NEW.REQ" />
-
-	<amq:topic
-		id="Q.TRANSFER.SETTLED"  
-		physicalName="Q.TRANSFER.SETTLED" />
-
-	<amq:topic
-		id="Q.TRANSFER.CANCELLED"  
-		physicalName="Q.TRANSFER.CANCELLED" />
 
 	<jms:annotation-driven />
 

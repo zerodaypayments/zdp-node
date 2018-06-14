@@ -1,9 +1,6 @@
 package io.zdp.node.service.validation.settle;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import io.zdp.node.service.validation.model.NetworkBaseSignedObject;
 import io.zdp.node.storage.account.domain.Account;
@@ -62,6 +59,12 @@ public class TransferSettlementRequest extends NetworkBaseSignedObject {
 	@Override
 	public String toString() {
 		return "TransferSettlementRequest [fromAccount=" + fromAccount + ", toAccount=" + toAccount + ", currentTransfer=" + currentTransfer + ", transactionUuid=" + Arrays.toString(transactionUuid) + "]";
+	}
+
+	@Override
+	public byte[] toHash() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -84,8 +84,6 @@ public class NetworkMQ implements NetworkTopologyListener {
 
 	}
 
-	private Set<>
-
 	@PostConstruct
 	public void init() {
 		onChange();

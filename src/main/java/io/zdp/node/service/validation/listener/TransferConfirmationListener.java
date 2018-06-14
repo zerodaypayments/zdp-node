@@ -11,7 +11,7 @@ import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
 import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 import io.zdp.node.storage.transfer.service.TransferHeaderService;
 
-@Component(value = "transferSettlementListener")
+@Component(value = "transferConfirmationListener")
 public class TransferConfirmationListener {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
