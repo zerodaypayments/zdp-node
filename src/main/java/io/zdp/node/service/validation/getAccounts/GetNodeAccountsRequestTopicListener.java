@@ -1,12 +1,15 @@
 package io.zdp.node.service.validation.getAccounts;
 
+import javax.jms.Message;
+import javax.jms.MessageListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.zdp.crypto.Signing;
-import io.zdp.node.network.validation.NetworkMQ;
+import io.zdp.node.network.validation.ValidationNetworkMQ;
 import io.zdp.node.service.LocalNodeService;
 
 /**
@@ -15,8 +18,8 @@ import io.zdp.node.service.LocalNodeService;
  * @author sn_1970@yahoo.com
  *
  */
-@Component(value = "getNodeAccountsListener")
-public class GetNodeAccountsListener {
+@Component(value = "getNodeAccountsRequestTopicListener")
+public class GetNodeAccountsRequestTopicListener  implements MessageListener{
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -27,8 +30,14 @@ public class GetNodeAccountsListener {
 	private GetNodeAccountsService getNodeAccountsService;
 
 	@Autowired
-	private NetworkMQ networkMQ;
+	private ValidationNetworkMQ networkMQ;
 
+	@Override
+	public void onMessage(Message message) {
+		// TODO Auto-generated method stub
+		log.debug("message: " + message);
+	}
+	
 	/**
 	 * MQ Listener
 	 */

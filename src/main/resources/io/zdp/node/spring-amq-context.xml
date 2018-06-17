@@ -23,14 +23,50 @@
 		brokerURL="tcp://${amq-validation-host}:${amq-validation-port}" />
 
 	<jms:annotation-driven />
+	
+	<!-- 
+	
+		New transfers:
+			
+			Create a topic to broadcast new transfers (T.NEW.TRANSFER.REQ) 
+			Subscribe to all validation nodes Topics to get broadcasted transfers (T.NEW.TRANSFER.REQ)
+			
+			Expose listener to receive new transfer responses via local broker (Q.TRANSFER.NEW.RESP)
+				This listener comes up with the decision on the transfer
+			
+		Settlements:
+			Create a topic to broadcast settled transactions (T.SETTLED.TRANSFER.REQ)
+			Subscribe to all validation nodes Topics to get settled transfers (T.SETTLED.TRANSFER.REQ)
 
+		Cancelled:
+			Create a topic to broadcast cancelled transactions (T.CANCELLED.TRANSFER.REQ)
+			Subscribe to all validation nodes Topics to get cancelled transfers (T.CANCELLED.TRANSFER.REQ)
+	
+	-->
+
+	<!-- New transfers -->
+	<amq:topic
+		id="newTransferRequestTopic"
+		name="T.TRANSFER.NEW.REQ"
+		physicalName="T.TRANSFER.NEW.REQ" />
+
+	<bean class="io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicPublisher">
+		<property
+			name="connectionFactory"
+			ref="amqFactory" />
+		<property
+			name="topic"
+			ref="newTransferRequestTopic" />
+	</bean>
+
+<!-- 
 	<jms:listener-container connection-factory="amqFactory">
+	
 		<jms:listener
 			destination="Q.TRANSFER.NEW.RESP"
-			ref="getNodeAccountsListener"
+			ref="getNodeAccountsRequestTopicListener"
 			method="onMessage" />
 	</jms:listener-container>
-
-
-
+ -->
+	
 </beans>

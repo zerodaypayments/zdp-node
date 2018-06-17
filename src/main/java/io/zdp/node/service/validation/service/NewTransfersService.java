@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.node.error.TransferException;
-import io.zdp.node.network.validation.NetworkMQ;
 import io.zdp.node.service.validation.UnconfirmedTransferMemoryPool;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequest;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
+import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicPublisher;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsService;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
@@ -32,9 +32,6 @@ public class NewTransfersService {
 	@Autowired
 	private TransferValidationService validationService;
 
-	 @Autowired
-	private NetworkMQ validationNetworkNodeMQBroker;
-
 	@Autowired
 	private UnconfirmedTransferMemoryPool memoryPool;
 
@@ -43,6 +40,9 @@ public class NewTransfersService {
 
 	@Autowired
 	private ValidationNodeSigner validationNodeSigner;
+
+	@Autowired
+	private GetNodeAccountsRequestTopicPublisher getNodeAccountsRequestTopicPublisher;
 
 	/**
 	 * Make a transfer
@@ -56,7 +56,7 @@ public class NewTransfersService {
 
 		// Broadcast new un-confirmed transfer to Validation network
 		final GetNodeAccountsRequest getNodeAccountsRequest = toGetNodeAccountsRequest(unconfirmedTransfer);
-		validationNetworkNodeMQBroker.broadcastToValidationNetwork(getNodeAccountsRequest);
+		getNodeAccountsRequestTopicPublisher.send(getNodeAccountsRequest);
 
 		// Add confirmed transfer to a local memory pool
 		memoryPool.add(unconfirmedTransfer);
