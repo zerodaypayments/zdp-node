@@ -1,5 +1,7 @@
 package io.zdp.node.service.validation;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -27,37 +29,63 @@ import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 @Service
 public class UnconfirmedTransferMemoryPool {
 
-	private final Logger log = LoggerFactory.getLogger( this.getClass() );
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private Cache < String, UnconfirmedTransfer > cache;
+	@SuppressWarnings("serial")
+	static class ByteWrapper implements Serializable {
+
+		private byte[] data;
+
+		public ByteWrapper(byte[] data) {
+			super();
+			this.data = data;
+		}
+
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(data);
+		}
+
+		public byte[] getData() {
+			return data;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return Arrays.equals(data, ((ByteWrapper) obj).getData());
+		}
+
+	}
+
+	private Cache<ByteWrapper, UnconfirmedTransfer> cache;
 
 	@PostConstruct
-	public void init ( ) {
+	public void init() {
 
-		RemovalListener < String, UnconfirmedTransfer > listener = new RemovalListener < String, UnconfirmedTransfer >() {
+		RemovalListener<ByteWrapper, UnconfirmedTransfer> listener = new RemovalListener<ByteWrapper, UnconfirmedTransfer>() {
 
 			@Override
-			public void onRemoval ( RemovalNotification < String, UnconfirmedTransfer > notification ) {
-				log.debug( "Transfer " + notification.getKey() + " removed from memory pool" );
+			public void onRemoval(RemovalNotification<ByteWrapper, UnconfirmedTransfer> notification) {
+				log.debug("Transfer " + notification.getKey() + " removed from memory pool");
 			}
 
 		};
 
-		cache = CacheBuilder.newBuilder().removalListener( listener ).maximumSize( 10000000L ).expireAfterWrite( 1, TimeUnit.MINUTES ).build();
+		cache = CacheBuilder.newBuilder().removalListener(listener).maximumSize(10000000L).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
 	}
 
-	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 4 )
-	public void log ( ) {
+	@Scheduled(fixedDelay = DateUtils.MILLIS_PER_SECOND * 4)
+	public void log() {
 		//log.debug( "Memory pool size: " + cache.size() );
 	}
 
-	public void add ( UnconfirmedTransfer c ) {
-		cache.put( c.getTransactionUuid(), c );
+	public void add(UnconfirmedTransfer c) {
+		cache.put(new ByteWrapper(c.getTransactionSignature()), c);
 	}
 
-	public UnconfirmedTransfer get ( String uuid ) {
-		return cache.getIfPresent( uuid );
+	public UnconfirmedTransfer get(byte[] uuid) {
+		return cache.getIfPresent(new ByteWrapper(uuid));
 	}
 
 }

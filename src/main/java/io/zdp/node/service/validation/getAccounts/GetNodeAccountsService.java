@@ -38,22 +38,22 @@ public class GetNodeAccountsService {
 
 	public GetNodeAccountsResponse process(GetNodeAccountsRequest t) {
 
-		GetNodeAccountsResponse confirmation = null;
+		GetNodeAccountsResponse resp = null;
 
 		try {
 
-			confirmation = this.processRequest(t);
+			resp = this.processRequest(t);
 
 		} catch (Exception e) {
 
 			log.error("Error: ", e);
 
-			confirmation = new GetNodeAccountsResponse();
-			confirmation.setStatus(Status.ERROR);
+			resp = new GetNodeAccountsResponse();
+			resp.setStatus(Status.ERROR);
 
 		}
 
-		return confirmation;
+		return resp;
 
 	}
 
@@ -99,8 +99,13 @@ public class GetNodeAccountsService {
 		}
 
 		// Lock accounts
-		this.lockedAccountsCache.add(fromAccount.getUuidAsBytes());
-		this.lockedAccountsCache.add(toAccount.getUuidAsBytes());
+		if (fromAccount != null) {
+			this.lockedAccountsCache.add(fromAccount.getUuidAsBytes());
+		}
+
+		if (toAccount != null) {
+			this.lockedAccountsCache.add(toAccount.getUuidAsBytes());
+		}
 
 		return c;
 	}

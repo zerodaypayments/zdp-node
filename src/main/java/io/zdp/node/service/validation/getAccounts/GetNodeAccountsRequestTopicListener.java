@@ -1,9 +1,9 @@
 package io.zdp.node.service.validation.getAccounts;
 
-import java.awt.Toolkit;
-
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import io.zdp.node.service.LocalNodeService;
  *
  */
 @Component(value = "getNodeAccountsRequestTopicListener")
-public class GetNodeAccountsRequestTopicListener  implements MessageListener{
+public class GetNodeAccountsRequestTopicListener implements MessageListener {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -36,16 +36,26 @@ public class GetNodeAccountsRequestTopicListener  implements MessageListener{
 
 	@Override
 	public void onMessage(Message message) {
-		// TODO Auto-generated method stub
-		log.debug("message: " + message);
-		Toolkit.getDefaultToolkit().beep();
 
+		try {
+
+			ObjectMessage om = (ObjectMessage) message;
+
+			GetNodeAccountsRequest req = (GetNodeAccountsRequest) om.getObject();
+
+			log.debug("message: " + req);
+
+			process(req);
+
+		} catch (JMSException e) {
+			log.error("Error: ", e);
+		}
 	}
-	
+
 	/**
 	 * MQ Listener
 	 */
-	public void onMessage(final GetNodeAccountsRequest t) {
+	public void process(final GetNodeAccountsRequest t) {
 
 		final GetNodeAccountsResponse resp = getNodeAccountsService.process(t);
 

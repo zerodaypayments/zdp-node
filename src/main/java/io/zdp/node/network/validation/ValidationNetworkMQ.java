@@ -1,6 +1,7 @@
 package io.zdp.node.network.validation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +10,12 @@ import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,8 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 	private Map<NetworkNode, List<DefaultMessageListenerContainer>> listeners = new HashMap<>();
 
+	private Map<String, JmsTemplate> jmsTemplates = new HashMap<>();
+
 	@PostConstruct
 	public void init() {
 		onChange();
@@ -68,6 +71,7 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 			// Cache AMQ objects
 			ActiveMQConnectionFactory amqcf = new ActiveMQConnectionFactory();
 			amqcf.setBrokerURL(brokerURL);
+			amqcf.setTrustedPackages(Arrays.asList("io.zdp.node.service.validation"));
 
 			org.apache.activemq.pool.PooledConnectionFactory pcf = new org.apache.activemq.pool.PooledConnectionFactory();
 			pcf.setConnectionFactory(amqcf);
@@ -91,6 +95,12 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 				listeners.get(remoteNode).add(l);
 			}
 
+			JmsTemplate t = new JmsTemplate(pcf);
+			t.setDefaultDestinationName(MQNames.QUEUE_TRANSFER_NEW_RESP);
+			t.afterPropertiesSet();
+
+			jmsTemplates.put(remoteNode.getUuid(), t);
+
 		}
 
 	}
@@ -99,6 +109,7 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 		DefaultMessageListenerContainer l = new DefaultMessageListenerContainer();
 		l.setConnectionFactory(pcf);
 		l.setDestinationName(name);
+		l.setPubSubDomain(true);
 		l.setTaskExecutor(taskExecutor);
 		l.setMessageListener(getNodeAccountsRequestTopicListener);
 		l.afterPropertiesSet();
@@ -113,9 +124,7 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 		log.debug("Send [" + c + "] to [" + serverUuid + "]");
 
-		final NetworkNode originatingNode = networkTopologyService.getNodeByUuid(serverUuid);
-
-		// Remote receive settle transfers
+		this.jmsTemplates.get(serverUuid).convertAndSend(c);
 
 	}
 
