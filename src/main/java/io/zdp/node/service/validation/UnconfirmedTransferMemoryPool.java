@@ -49,7 +49,7 @@ public class UnconfirmedTransferMemoryPool {
 
 	@Scheduled ( fixedDelay = DateUtils.MILLIS_PER_SECOND * 4 )
 	public void log ( ) {
-		log.debug( "Memory pool size: " + cache.size() );
+		//log.debug( "Memory pool size: " + cache.size() );
 	}
 
 	public void add ( UnconfirmedTransfer c ) {

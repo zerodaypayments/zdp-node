@@ -89,7 +89,7 @@ public class Node {
 				String value = split[1];
 
 				if (PARAM_TYPE.equalsIgnoreCase(key)) {
-					if (NetworkNodeType.VALIDATING.name().equals(value)) {
+					if (NetworkNodeType.VALIDATING.name().equalsIgnoreCase(value)) {
 						localNode.setNodeType(NetworkNodeType.VALIDATING);
 					}
 				} else if (PARAM_UUID.equalsIgnoreCase(key)) {

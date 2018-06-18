@@ -21,7 +21,7 @@ public class GetNodeAccountsRequestTopicPublisher {
 
 	private Topic topic;
 
-	@Scheduled(fixedDelay = 1000)
+	//@Scheduled(fixedDelay = 6000)
 	public void gen() {
 
 		GetNodeAccountsRequest req = new GetNodeAccountsRequest();

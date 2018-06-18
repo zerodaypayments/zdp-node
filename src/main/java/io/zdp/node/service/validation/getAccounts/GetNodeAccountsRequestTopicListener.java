@@ -1,5 +1,7 @@
 package io.zdp.node.service.validation.getAccounts;
 
+import java.awt.Toolkit;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -36,6 +38,8 @@ public class GetNodeAccountsRequestTopicListener  implements MessageListener{
 	public void onMessage(Message message) {
 		// TODO Auto-generated method stub
 		log.debug("message: " + message);
+		Toolkit.getDefaultToolkit().beep();
+
 	}
 	
 	/**

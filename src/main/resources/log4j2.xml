@@ -37,6 +37,16 @@
 			<AppenderRef ref="console" />
 			<AppenderRef ref="file" />
 		</Logger>
+		
+		<Logger
+			name="org.springframework.jms"
+			level="trace"
+			additivity="false"
+		>
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Logger>
+
 
 		<Logger
 			name="io.zdp"
