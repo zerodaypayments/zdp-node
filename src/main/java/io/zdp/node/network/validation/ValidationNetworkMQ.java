@@ -61,6 +61,11 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 		final List<NetworkNode> nodes = this.networkTopologyService.getAllBut(this.nodeConfigurationService.getNode());
 
+		log.debug("Will listen to " + nodes.size() + " nodes: ");
+		for (NetworkNode node : nodes) {
+			log.debug(node.getAmqHostname() + ":" + node.getAmqPort());
+		}
+
 		for (NetworkNode remoteNode : nodes) {
 
 			listeners.put(remoteNode, new ArrayList<DefaultMessageListenerContainer>());
@@ -71,7 +76,7 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 			// Cache AMQ objects
 			ActiveMQConnectionFactory amqcf = new ActiveMQConnectionFactory();
 			amqcf.setBrokerURL(brokerURL);
-			amqcf.setTrustedPackages(Arrays.asList("io.zdp.node.service.validation"));
+			amqcf.setTrustedPackages(Arrays.asList("io.zdp.node"));
 
 			org.apache.activemq.pool.PooledConnectionFactory pcf = new org.apache.activemq.pool.PooledConnectionFactory();
 			pcf.setConnectionFactory(amqcf);

@@ -37,7 +37,7 @@ public class AccountService {
 			genesis.setCurve( Curves.DEFAULT_CURVE_INDEX );
 			genesis.setHeight( 1 );
 			genesis.setTransferHash( new byte [ ] {} );
-			genesis.setUuid( Base58.decode( "32cnR8nvkRQYgcVZrmo6KNhwD823" ) );
+			genesis.setUuid( Base58.decode( "3xN7bk2FxkcuCotTF4ByGN6EYiio" ) );
 
 			// mint a genesis account
 			accountDao.save( genesis );

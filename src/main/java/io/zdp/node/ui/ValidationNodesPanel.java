@@ -2,6 +2,7 @@ package io.zdp.node.ui;
 
 import java.awt.BorderLayout;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JEditorPane;
@@ -15,15 +16,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.zdp.client.ZdpClient;
+import io.zdp.crypto.Base58;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.Node;
 import io.zdp.node.common.QTextComponentContextMenu;
 import io.zdp.node.common.SwingHelper;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.cache.RecentTransfersCache;
+import io.zdp.node.service.validation.cache.key.ByteWrapper;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
-import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
-import io.zdp.node.storage.transfer.domain.TransferHeader;
 
 @Component
 @SuppressWarnings("serial")
@@ -43,7 +45,7 @@ public class ValidationNodesPanel {
 	private AccountDao accountDao;
 
 	@Autowired
-	private TransferHeaderDao transferHeaderDao;
+	private RecentTransfersCache transfersCache;
 
 	@Autowired
 	private LocalNodeService localNodeService;
@@ -92,10 +94,10 @@ public class ValidationNodesPanel {
 
 			sb.append("<h2>Transfers</h2>");
 
-			List<TransferHeader> transfers = transferHeaderDao.findAll();
+			Set<ByteWrapper> transfers = transfersCache.findAll();
 			sb.append("transfers count: " + transfers.size() + "<hr>");
-			for (TransferHeader th : transfers) {
-				sb.append("Transfer: " + th + "<hr>");
+			for (ByteWrapper th : transfers) {
+				sb.append("Transfer: " + Base58.encode(th.getData()) + "<hr>");
 			}
 
 		}

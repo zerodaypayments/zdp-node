@@ -27,7 +27,7 @@
 			value="tcp://${amq-validation-host}:${amq-validation-port}" />
 		<property name="trustedPackages">
 			<list>
-				<value>io.zdp.node.service.validation</value>
+				<value>io.zdp.node</value>
 			</list>
 		</property>
 	</bean>

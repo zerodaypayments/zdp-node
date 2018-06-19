@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,12 @@ public class TransferValidationService {
 		UnconfirmedTransfer c = new UnconfirmedTransfer();
 
 		try {
+
+			// Expired (> 1 minutes old)?
+			if ((System.currentTimeMillis() - request.getTime()) > DateUtils.MILLIS_PER_MINUTE) {
+				log.error("Expired: " + request.getTime());
+				throw new TransferException(TransferResponse.ERROR_EXPIRED);
+			}
 
 			// Validate addresses
 			if (false == ZDPAccountUuid.isValidUuid(request.getFrom())) {

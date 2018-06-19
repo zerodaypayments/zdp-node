@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import io.zdp.crypto.Base58;
 import io.zdp.node.service.validation.model.NetworkBaseSignedObject;
 import io.zdp.node.storage.account.domain.Account;
 
@@ -92,7 +93,7 @@ public class GetNodeAccountsResponse extends NetworkBaseSignedObject {
 
 	@Override
 	public String toString() {
-		return "TransferConfirmation [fromAccount=" + fromAccount + ", toAccount=" + toAccount + ", status=" + status + ", serverUuid=" + serverUuid + ", transferUuid=" + transferUuid + "]";
+		return "GetNodeAccountsResponse [fromAccount=" + fromAccount + ", toAccount=" + toAccount + ", status=" + status + ", serverUuid=" + serverUuid + ", transferUuid=" + Base58.encode(transferUuid) + "]";
 	}
 
 }

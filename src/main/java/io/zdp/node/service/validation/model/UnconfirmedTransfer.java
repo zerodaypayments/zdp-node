@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.zdp.crypto.Base58;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
 
@@ -111,7 +112,7 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Arrays.toString(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + ", readyToSettle=" + readyToSettle + ", confirmations="
+		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Base58.encode(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + ", readyToSettle=" + readyToSettle + ", confirmations="
 				+ confirmations + "]";
 	}
 }

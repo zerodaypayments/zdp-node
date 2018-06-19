@@ -18,7 +18,7 @@ import com.google.common.cache.RemovalNotification;
 
 import io.zdp.node.service.validation.cache.key.ByteWrapper;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
-import io.zdp.node.service.validation.service.TransferSettlementService;
+import io.zdp.node.service.validation.service.TransferConsensusService;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class UnconfirmedTransferMemoryPool {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private TransferSettlementService transferSettlementService;
+	private TransferConsensusService transferConsensusService;
 
 	private Cache<ByteWrapper, UnconfirmedTransfer> cache;
 
@@ -46,7 +46,7 @@ public class UnconfirmedTransferMemoryPool {
 			public void onRemoval(RemovalNotification<ByteWrapper, UnconfirmedTransfer> notification) {
 
 				if (notification.getValue().isReadyToSettle()) {
-					transferSettlementService.settle(notification.getValue());
+					transferConsensusService.settle(notification.getValue());
 				}
 
 				log.debug("Transfer " + notification.getKey() + " removed from memory pool");

@@ -1,5 +1,6 @@
 package io.zdp.node.service.validation.cache;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -23,7 +24,7 @@ public class RecentTransfersCache {
 
 	@PostConstruct
 	public void init() {
-		cache = CacheBuilder.newBuilder().maximumSize(10000000L).expireAfterWrite(10, TimeUnit.MINUTES).build();
+		cache = CacheBuilder.newBuilder().maximumSize(10000000L).expireAfterWrite(1, TimeUnit.MINUTES).build();
 	}
 
 	public void add(byte[] uuid) {
@@ -32,6 +33,10 @@ public class RecentTransfersCache {
 
 	public boolean contains(byte[] uuid) {
 		return cache.getIfPresent(new ByteWrapper(uuid)) != null;
+	}
+
+	public Set<ByteWrapper> findAll() {
+		return cache.asMap().keySet();
 	}
 
 }

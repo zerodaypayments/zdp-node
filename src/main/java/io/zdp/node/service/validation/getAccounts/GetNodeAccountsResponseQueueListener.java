@@ -9,7 +9,7 @@ import io.zdp.crypto.Base58;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.validation.cache.UnconfirmedTransferMemoryPool;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
-import io.zdp.node.service.validation.service.TransferSettlementService;
+import io.zdp.node.service.validation.service.TransferConsensusService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
@@ -32,7 +32,7 @@ public class GetNodeAccountsResponseQueueListener {
 	private ValidationNodeSigner validationNodeSigner;
 
 	@Autowired
-	private TransferSettlementService transferSettlementService;
+	private TransferConsensusService transferConsensusService;
 
 	public void onMessage(final GetNodeAccountsResponse resp) {
 
@@ -57,15 +57,15 @@ public class GetNodeAccountsResponseQueueListener {
 						// enough to settle?
 						log.debug("Got confirmations: " + confirmationCount);
 
-						if (confirmationCount > networkTopologyService.getAllNodes().size() / 2) {
+						if (confirmationCount >= networkTopologyService.getAllNodes().size()) {
 
 							log.debug("Ready to settle");
 
 							unconfirmedTransfer.setReadyToSettle(true);
-							
+
 							unconfirmedTransferMemoryPool.remove(unconfirmedTransfer);
 
-							transferSettlementService.settle(unconfirmedTransfer);
+							transferConsensusService.settle(unconfirmedTransfer);
 						}
 
 					} else {

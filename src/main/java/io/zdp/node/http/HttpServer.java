@@ -84,6 +84,8 @@ public class HttpServer {
 		http.setPort(Node.getLocalNode().getHttpPort());
 		http.setIdleTimeout(30000);
 		server.addConnector(http);
+		
+		log.debug("HTTP port: " + http.getPort());
 
 		// SSL HTTP Configuration
 		HttpConfiguration https_config = new HttpConfiguration(http_config);

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
-import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
-import io.zdp.node.storage.transfer.service.TransferHeaderService;
 
 @Component(value = "transferConfirmationListener")
 public class TransferConfirmationListener {
@@ -22,11 +20,6 @@ public class TransferConfirmationListener {
 	@Autowired
 	private AccountService accountService;
 
-	@Autowired
-	private TransferHeaderDao transferHeaderDao;
-
-	@Autowired
-	private TransferHeaderService transferHeaderService;
 
 	@Autowired
 	private CurrentTransferDao currentTransferDao;

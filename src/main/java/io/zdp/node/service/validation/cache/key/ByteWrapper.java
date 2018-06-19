@@ -3,6 +3,8 @@ package io.zdp.node.service.validation.cache.key;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import io.zdp.crypto.Base58;
+
 @SuppressWarnings("serial")
 public class ByteWrapper implements Serializable {
 
@@ -26,5 +28,12 @@ public class ByteWrapper implements Serializable {
 	public boolean equals(Object obj) {
 		return Arrays.equals(data, ((ByteWrapper) obj).getData());
 	}
+
+	@Override
+	public String toString() {
+		return "ByteWrapper [" + Base58.encode(data) + "]";
+	}
+	
+	
 
 }

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.zdp.node.service.validation.cache.LockedAccountsCache;
+import io.zdp.node.service.validation.cache.RecentTransfersCache;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse.Status;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
-import io.zdp.node.storage.transfer.dao.TransferHeaderDao;
 
 /**
  * Transfer confirmation listener for Validation nodes
@@ -25,7 +25,7 @@ public class GetNodeAccountsService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private TransferHeaderDao transferHeaderDao;
+	private RecentTransfersCache recentTransfersCache;
 
 	@Autowired
 	private AccountService accountService;
@@ -78,7 +78,7 @@ public class GetNodeAccountsService {
 		}
 
 		// Check if such a tx exists, if so, return
-		if (transferHeaderDao.findByUuid(t.getTransactionUuid()) != null) {
+		if (recentTransfersCache.contains(t.getTransactionUuid())) {
 			c.setStatus(Status.REPLAY_DETECTED);
 			return c;
 		}

@@ -1,0 +1,6 @@
+--type=validating --uuid=LOCALHOST_7000 --private-key=2nPxLh61Bzbzny5Soto9TdaQ61mZLHWN5WwKnpXESfd6 --data-folder=c:/tmp/ --http-port=7000 --debug=true --amq-validation-port=7100 --amq-validation-host=localhost
+
+--type=validating --uuid=LOCALHOST_8000 --private-key=46AZAq94Dz7UDykgoAQkcyEjDKVhnZDpcHx21usRZL75 --data-folder=c:/tmp/ --http-port=8000  --debug=true --amq-validation-port=8100 --amq-validation-host=localhost
+
+--type=validating --uuid=LOCALHOST_9000 --private-key=19tifCwtQVC7qKtHjAgevcHRJ99DgjAWWCVyjdDfcYMt4 --data-folder=c:/tmp/ --http-port=9000  --debug=true --amq-validation-port=9100 --amq-validation-host=localhost
+

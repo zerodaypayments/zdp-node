@@ -1,0 +1,26 @@
+[
+	{
+		"hostname": "localhost",
+		"httpPort": 7000,
+		"uuid": "LOCALHOST_7000",
+		"publicKey": "cg2KTod3pFHJjrjQvTFRhPKQirNj4V4TU6ZDtpNUm33Q",
+		"amqHostname":"localhost",
+		"amqPort":7100
+	},
+	{
+		"hostname": "localhost",
+		"httpPort": 8000,
+		"uuid": "LOCALHOST_8000",
+		"publicKey": "22ALnHmVbbA2yaRRpDmmM12KzB2onrZVXPHxdVNewBMYw",
+		"amqHostname":"localhost",
+		"amqPort":8100
+	},
+	{
+		"hostname": "localhost",
+		"httpPort": 9000,
+		"uuid": "LOCALHOST_9000",
+		"publicKey": "xfGrJA4DvveVtjv9gtUCf95XW7vFTavRk3aKakQXGG8b",
+		"amqHostname":"localhost",
+		"amqPort":9100
+	}	
+]
