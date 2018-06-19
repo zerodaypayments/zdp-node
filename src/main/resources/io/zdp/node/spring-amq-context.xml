@@ -49,9 +49,6 @@
 		<property
 			name="topic"
 			ref="newTransferRequestTopic" />
-		<property
-			name="localNodeService"
-			ref="localNodeService" />
 	</bean>
 
 	<jms:listener-container connection-factory="amqFactory">

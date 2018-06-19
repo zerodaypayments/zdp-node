@@ -38,7 +38,7 @@ public class GetNodeAccountsResponse extends NetworkBaseSignedObject {
 		super();
 		this.status = status;
 	}
-
+	
 	@Override
 	public byte[] toHash() {
 

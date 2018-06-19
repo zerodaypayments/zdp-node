@@ -10,6 +10,7 @@ import java.util.List;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
+import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
 @SuppressWarnings("serial")
 public final class UnconfirmedTransfer implements Serializable {
@@ -110,9 +111,25 @@ public final class UnconfirmedTransfer implements Serializable {
 		this.fee = fee;
 	}
 
+	public CurrentTransfer toCurrentTransfer() {
+
+		CurrentTransfer t = new CurrentTransfer();
+
+		t.setAmount(getAmount().toPlainString());
+		t.setDate(getTime());
+		t.setFee(getFee().toPlainString());
+		t.setFrom(fromAccountUuid.getUuid());
+		t.setMemo(getMemo());
+		t.setTo(toAccountUuid.getUuid());
+		t.setUuid(getTransactionUuid());
+
+		return t;
+
+	}
+
 	@Override
 	public String toString() {
-		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Base58.encode(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + ", readyToSettle=" + readyToSettle + ", confirmations="
-				+ confirmations + "]";
+		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Base58.encode(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + ", readyToSettle=" + readyToSettle + ", confirmations=" + confirmations
+				+ "]";
 	}
 }

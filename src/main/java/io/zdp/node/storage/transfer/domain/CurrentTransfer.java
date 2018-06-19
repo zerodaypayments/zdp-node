@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 @SuppressWarnings("serial")
 public class CurrentTransfer implements Serializable {
 
+	private static final String PIPE = "|";
+
 	private String uuid;
 
 	private String from;
@@ -21,23 +23,27 @@ public class CurrentTransfer implements Serializable {
 
 	private String memo = StringUtils.EMPTY;
 
+	private String status;
+
 	public String toRecordString() {
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(StringUtils.rightPad(uuid, 32, StringUtils.SPACE));
-		sb.append("|");
+		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(from, 38, StringUtils.SPACE));
-		sb.append("|");
+		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(to, 38, StringUtils.SPACE));
-		sb.append("|");
+		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(Long.toString(date), 20, StringUtils.SPACE));
-		sb.append("|");
+		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(amount, 20, StringUtils.SPACE));
-		sb.append("|");
+		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(fee, 8, StringUtils.SPACE));
-		sb.append("|");
-		sb.append(memo);
+		sb.append(PIPE);
+		sb.append(sb.append(StringUtils.rightPad(memo, 64, StringUtils.SPACE)));
+		sb.append(PIPE);
+		sb.append(sb.append(StringUtils.rightPad(status, 26, StringUtils.SPACE)));
 
 		return sb.toString();
 
@@ -97,6 +103,14 @@ public class CurrentTransfer implements Serializable {
 
 	public void setMemo(String memo) {
 		this.memo = memo;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	@Override
