@@ -25,7 +25,7 @@ public class GetNodeAccountsRequestTopicPublisher {
 
 	private LocalNodeService localNodeService;
 
-	@Scheduled(fixedDelay = 2000)
+//	@Scheduled(fixedDelay = 2000)
 	public void gen() {
 
 		GetNodeAccountsRequest req = new GetNodeAccountsRequest();

@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-
-import org.bouncycastle.util.encoders.Hex;
 
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
@@ -31,7 +29,17 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	private long time = System.currentTimeMillis();
 
+	private boolean readyToSettle;
+
 	private List<GetNodeAccountsResponse> confirmations = new ArrayList<>();
+
+	public boolean isReadyToSettle() {
+		return readyToSettle;
+	}
+
+	public void setReadyToSettle(boolean readyToSettle) {
+		this.readyToSettle = readyToSettle;
+	}
 
 	public List<GetNodeAccountsResponse> getConfirmations() {
 		return confirmations;
@@ -103,6 +111,7 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Hex.toHexString(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + "]";
+		return "UnconfirmedTransfer [fromAccountUuid=" + fromAccountUuid + ", toAccountUuid=" + toAccountUuid + ", amount=" + amount + ", fee=" + fee + ", transactionSignature=" + Arrays.toString(transactionSignature) + ", transactionUuid=" + transactionUuid + ", memo=" + memo + ", time=" + time + ", readyToSettle=" + readyToSettle + ", confirmations="
+				+ confirmations + "]";
 	}
 }

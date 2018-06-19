@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.zdp.node.service.validation.LockedAccountsCache;
+import io.zdp.node.service.validation.cache.LockedAccountsCache;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse.Status;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.domain.Account;

@@ -1,7 +1,5 @@
-package io.zdp.node.service.validation;
+package io.zdp.node.service.validation.cache;
 
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -9,6 +7,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
+import io.zdp.node.service.validation.cache.key.ByteWrapper;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
+import io.zdp.node.service.validation.service.TransferSettlementService;
 
 /**
  * 
@@ -31,31 +32,8 @@ public class UnconfirmedTransferMemoryPool {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@SuppressWarnings("serial")
-	static class ByteWrapper implements Serializable {
-
-		private byte[] data;
-
-		public ByteWrapper(byte[] data) {
-			super();
-			this.data = data;
-		}
-
-		@Override
-		public int hashCode() {
-			return Arrays.hashCode(data);
-		}
-
-		public byte[] getData() {
-			return data;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return Arrays.equals(data, ((ByteWrapper) obj).getData());
-		}
-
-	}
+	@Autowired
+	private TransferSettlementService transferSettlementService;
 
 	private Cache<ByteWrapper, UnconfirmedTransfer> cache;
 
@@ -66,7 +44,13 @@ public class UnconfirmedTransferMemoryPool {
 
 			@Override
 			public void onRemoval(RemovalNotification<ByteWrapper, UnconfirmedTransfer> notification) {
+
+				if (notification.getValue().isReadyToSettle()) {
+					transferSettlementService.settle(notification.getValue());
+				}
+
 				log.debug("Transfer " + notification.getKey() + " removed from memory pool");
+
 			}
 
 		};
@@ -77,7 +61,7 @@ public class UnconfirmedTransferMemoryPool {
 
 	@Scheduled(fixedDelay = DateUtils.MILLIS_PER_SECOND * 4)
 	public void log() {
-		//log.debug( "Memory pool size: " + cache.size() );
+		// log.debug( "Memory pool size: " + cache.size() );
 	}
 
 	public void add(UnconfirmedTransfer c) {
@@ -86,6 +70,10 @@ public class UnconfirmedTransferMemoryPool {
 
 	public UnconfirmedTransfer get(byte[] uuid) {
 		return cache.getIfPresent(new ByteWrapper(uuid));
+	}
+
+	public void remove(UnconfirmedTransfer unconfirmedTransfer) {
+		cache.invalidate(new ByteWrapper(unconfirmedTransfer.getTransactionSignature()));
 	}
 
 }

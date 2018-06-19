@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
 import io.zdp.node.error.TransferException;
-import io.zdp.node.service.validation.UnconfirmedTransferMemoryPool;
+import io.zdp.node.service.validation.cache.UnconfirmedTransferMemoryPool;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequest;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicPublisher;

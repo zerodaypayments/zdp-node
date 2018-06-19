@@ -20,7 +20,7 @@ import io.zdp.crypto.Signing;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.common.StringHelper;
 import io.zdp.node.error.TransferException;
-import io.zdp.node.service.validation.LockedAccountsCache;
+import io.zdp.node.service.validation.cache.LockedAccountsCache;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
 
 /**
