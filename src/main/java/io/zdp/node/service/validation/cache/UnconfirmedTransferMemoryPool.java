@@ -18,8 +18,8 @@ import com.google.common.cache.RemovalNotification;
 
 import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.node.service.validation.cache.key.ByteWrapper;
+import io.zdp.node.service.validation.consensus.TransferConsensusService;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
-import io.zdp.node.service.validation.service.TransferConsensusService;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
 import io.zdp.node.storage.transfer.domain.CurrentTransfer;
 
@@ -53,7 +53,7 @@ public class UnconfirmedTransferMemoryPool {
 
 				UnconfirmedTransfer transfer = notification.getValue();
 				if (transfer.isReadyToSettle()) {
-					transferConsensusService.settle(transfer);
+					transferConsensusService.process(transfer);
 				} else {
 
 					CurrentTransfer currentTransfer = transfer.toCurrentTransfer();

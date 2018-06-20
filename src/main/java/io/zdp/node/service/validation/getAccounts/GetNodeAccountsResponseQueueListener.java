@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import io.zdp.crypto.Base58;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.validation.cache.UnconfirmedTransferMemoryPool;
+import io.zdp.node.service.validation.consensus.TransferConsensusService;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
-import io.zdp.node.service.validation.service.TransferConsensusService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
@@ -33,7 +33,7 @@ public class GetNodeAccountsResponseQueueListener {
 
 	@Autowired
 	private TransferConsensusService transferConsensusService;
-
+	
 	public void onMessage(final GetNodeAccountsResponse resp) {
 
 		log.debug("Got accounts response from: " + resp.getServerUuid());
@@ -65,7 +65,7 @@ public class GetNodeAccountsResponseQueueListener {
 
 							unconfirmedTransferMemoryPool.remove(unconfirmedTransfer);
 
-							transferConsensusService.settle(unconfirmedTransfer);
+							transferConsensusService.process(unconfirmedTransfer);
 						}
 
 					} else {
