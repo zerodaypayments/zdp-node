@@ -16,12 +16,24 @@ public class TransferSettlementRequest extends NetworkBaseSignedObject {
 
 	private CurrentTransfer currentTransfer;
 
+	private byte[] transferUuid;
+
 	@Override
 	public byte[] toHash() {
 		byte[] hash = ArrayUtils.addAll(fromAccount.toHashSignature(), null);
 		hash = ArrayUtils.addAll(hash, toAccount.toHashSignature());
 		hash = ArrayUtils.addAll(hash, Hashing.ripemd160(currentTransfer.toRecordString()));
+		hash = ArrayUtils.addAll(hash, transferUuid);
+
 		return hash;
+	}
+
+	public byte[] getTransferUuid() {
+		return transferUuid;
+	}
+
+	public void setTransferUuid(byte[] transferUuid) {
+		this.transferUuid = transferUuid;
 	}
 
 	public Account getFromAccount() {

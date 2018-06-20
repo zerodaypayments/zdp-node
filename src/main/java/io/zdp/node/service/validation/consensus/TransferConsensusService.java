@@ -1,5 +1,8 @@
 package io.zdp.node.service.validation.consensus;
 
+import java.math.BigDecimal;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferResponse;
+import io.zdp.crypto.Hashing;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.validation.cache.TransferConsensusCache;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse.Status;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
+import io.zdp.node.service.validation.service.ValidationNodeSigner;
+import io.zdp.node.service.validation.settle.TransferSettlementRequest;
+import io.zdp.node.service.validation.settle.TransferSettlementRequestTopicPublisher;
 import io.zdp.node.service.validation.settle.TransferSettlementService;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
@@ -33,6 +40,12 @@ public class TransferConsensusService {
 
 	@Autowired
 	private TransferSettlementService transferSettlementService;
+
+	@Autowired
+	private TransferSettlementRequestTopicPublisher TransferSettlementTopicPublisher;
+
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
 
 	public void process(final UnconfirmedTransfer transfer) {
 
@@ -117,11 +130,66 @@ public class TransferConsensusService {
 			return;
 		}
 
+		// Create TO account if required
+		if (toAccount == null) {
+			toAccount = new Account();
+			toAccount.setBalance(BigDecimal.ZERO);
+			toAccount.setCurve(transfer.getToAccountUuid().getCurveAsIndex());
+			toAccount.setHeight(0);
+			toAccount.setTransferHash(new byte[] {});
+			toAccount.setUuid(transfer.getToAccountUuid().getPublicKeyHash());
+		}
+		
+		// Update accounts block chain signatures with the new transfer
+		updateFromAccount(fromAccount, transfer);
+		updateToAccount(toAccount, transfer);
+
 		log.debug("Settled on FROM [" + fromAccount + "] and TO [" + toAccount + "]");
 
-		// TODO this.transferSettlementService.settle(transfer, fromAccount, toAccount);
+		// Create settlement object
+		final TransferSettlementRequest settlement = new TransferSettlementRequest();
+		settlement.setCurrentTransfer(transfer.toCurrentTransfer());
+		settlement.setFromAccount(fromAccount);
+		settlement.setToAccount(toAccount);
+		settlement.setTransferUuid(transfer.getTransactionSignature());
 
-		// 		 TODO publish settlments event 
+		try {
+			validationNodeSigner.sign(settlement);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+		}
+
+		// Settle locally
+		this.transferSettlementService.settle(settlement);
+
+		// Broadcase settlement
+		this.TransferSettlementTopicPublisher.send(settlement);
+
+	}
+
+	private void updateFromAccount(Account from, UnconfirmedTransfer transfer) {
+		
+		from.setBalance(from.getBalance().subtract( transfer.getAmount()).subtract(transfer.getFee()));
+		from.setHeight(from.getHeight() + 1);
+		
+		byte[] signature = ArrayUtils.addAll(from.getTransferHash(), transfer.getTransactionSignature());
+		signature = Hashing.ripemd160(signature); 
+				
+		from.setTransferHash(signature);
+
+		
+	}
+	
+	private void updateToAccount(Account to, UnconfirmedTransfer transfer) {
+		
+		to.setBalance(to.getBalance().add( transfer.getAmount()));
+		to.setHeight(to.getHeight() + 1);
+		
+		byte[] signature = ArrayUtils.addAll(to.getTransferHash(), transfer.getTransactionSignature());
+		signature = Hashing.ripemd160(signature); 
+				
+		to.setTransferHash(signature);
+		
 	}
 
 	private void logErrorTransfer(final UnconfirmedTransfer transfer, String errorMsg) {

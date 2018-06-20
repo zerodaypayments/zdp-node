@@ -51,6 +51,22 @@
 			ref="newTransferRequestTopic" />
 	</bean>
 
+	<!-- Settlements topic -->
+	<amq:topic
+		id="settlmentsRequestTopic"
+		name="T.SETTLED.TRANSFER.REQ"
+		physicalName="T.SETTLED.TRANSFER.REQ" />
+
+	<bean class="io.zdp.node.service.validation.settle.TransferSettlementTopicPublisher">
+		<property
+			name="connectionFactory"
+			ref="amqFactory" />
+		<property
+			name="topic"
+			ref="settlmentsRequestTopic" />
+	</bean>
+
+
 	<jms:listener-container connection-factory="amqFactory">
 
 		<jms:listener

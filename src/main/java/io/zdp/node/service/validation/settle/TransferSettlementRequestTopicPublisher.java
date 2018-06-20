@@ -10,7 +10,7 @@ import org.springframework.jms.core.JmsTemplate;
 /**
  * @author sn_1970@yahoo.com
  */
-public class TransferSettlementtTopicPublisher {
+public class TransferSettlementRequestTopicPublisher {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -20,7 +20,7 @@ public class TransferSettlementtTopicPublisher {
 
 	public void send(final TransferSettlementRequest req) {
 
-		log.debug("GetNodeAccountsSender: " + req);
+		log.debug("TransferSettlementTopicPublisher: " + req);
 
 		jmsTemplate.convertAndSend(topic, req);
 

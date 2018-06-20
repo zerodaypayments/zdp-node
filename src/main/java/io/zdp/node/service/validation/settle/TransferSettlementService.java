@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.zdp.node.service.validation.cache.LockedAccountsCache;
+import io.zdp.node.service.validation.cache.RecentTransfersCache;
 import io.zdp.node.storage.account.domain.Account;
 import io.zdp.node.storage.account.service.AccountService;
 import io.zdp.node.storage.transfer.dao.CurrentTransferDao;
@@ -25,14 +26,23 @@ public class TransferSettlementService {
 	@Autowired
 	private LockedAccountsCache lockedAccountsCache;
 
+	@Autowired
+	private RecentTransfersCache recentTransfersCache;
+
 	public void settle(TransferSettlementRequest req) {
 
 		log.debug("Settle: " + req);
 
+		// Create/update accounts
 		updateAccounts(req);
 
+		// Save ledger record
 		saveCurrentTransfer(req);
 
+		// Add to the recent transfer cache (for replay detection)
+		recentTransfersCache.add(req.getTransferUuid());
+
+		// Un-lock accounts
 		lockedAccountsCache.remove(req.getFromAccount().getUuidAsBytes());
 		lockedAccountsCache.remove(req.getToAccount().getUuidAsBytes());
 
@@ -50,6 +60,7 @@ public class TransferSettlementService {
 
 			if (from == null) {
 				from = createNewAccount(req.getFromAccount());
+				req.setFromAccount(from);
 			}
 
 			updateAccount(from, req.getFromAccount());
@@ -66,6 +77,7 @@ public class TransferSettlementService {
 
 			if (to == null) {
 				to = createNewAccount(req.getToAccount());
+				req.setToAccount(to);
 			}
 
 			updateAccount(to, req.getToAccount());

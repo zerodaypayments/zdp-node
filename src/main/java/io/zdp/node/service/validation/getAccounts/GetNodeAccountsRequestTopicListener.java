@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import io.zdp.crypto.Signing;
 import io.zdp.node.network.validation.ValidationNetworkMQ;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
  * Transfer confirmation listener for Validation nodes
@@ -34,18 +35,27 @@ public class GetNodeAccountsRequestTopicListener implements MessageListener {
 	@Autowired
 	private ValidationNetworkMQ networkMQ;
 
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
+
 	@Override
 	public void onMessage(Message message) {
 
 		try {
 
-			ObjectMessage om = (ObjectMessage) message;
+			final ObjectMessage om = (ObjectMessage) message;
 
-			GetNodeAccountsRequest req = (GetNodeAccountsRequest) om.getObject();
+			final GetNodeAccountsRequest req = (GetNodeAccountsRequest) om.getObject();
 
-			log.debug("message: " + req);
+			if (validationNodeSigner.isValidSignature(req)) {
 
-			process(req);
+				log.debug("getNodeAccountsRequestTopicListener: " + req);
+
+				process(req);
+
+			} else {
+				log.error("Can't verify request: " + req);
+			}
 
 		} catch (JMSException e) {
 			log.error("Error: ", e);

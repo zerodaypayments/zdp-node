@@ -25,6 +25,7 @@ import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.LocalNodeService;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
+import io.zdp.node.service.validation.settle.TransferSettlementRequestTopicListener;
 
 @Service
 public class ValidationNetworkMQ implements NetworkTopologyListener {
@@ -39,6 +40,9 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 	@Autowired
 	private GetNodeAccountsRequestTopicListener getNodeAccountsRequestTopicListener;
+
+	@Autowired
+	private TransferSettlementRequestTopicListener transferSettlementRequestTopicListener;
 
 	@Autowired
 	@Qualifier("default-task-executor")
@@ -86,17 +90,17 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 			// Remote GetAccounts request
 			{
-				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_TRANSFER_NEW_REQ);
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_TRANSFER_NEW_REQ, getNodeAccountsRequestTopicListener);
 				listeners.get(remoteNode).add(l);
 			}
 
 			{
-				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_SETTLED_TRANSFER_REQ);
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_SETTLED_TRANSFER_REQ, transferSettlementRequestTopicListener);
 				listeners.get(remoteNode).add(l);
 			}
 
 			{
-				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_CANCELLED_TRANSFER_REQ);
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_CANCELLED_TRANSFER_REQ, getNodeAccountsRequestTopicListener);
 				listeners.get(remoteNode).add(l);
 			}
 
@@ -110,13 +114,13 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 	}
 
-	private DefaultMessageListenerContainer createListener(ConnectionFactory pcf, String name) {
+	private DefaultMessageListenerContainer createListener(ConnectionFactory pcf, String name, Object listener) {
 		DefaultMessageListenerContainer l = new DefaultMessageListenerContainer();
 		l.setConnectionFactory(pcf);
 		l.setDestinationName(name);
 		l.setPubSubDomain(true);
 		l.setTaskExecutor(taskExecutor);
-		l.setMessageListener(getNodeAccountsRequestTopicListener);
+		l.setMessageListener(listener);
 		l.afterPropertiesSet();
 		l.start();
 		return l;
