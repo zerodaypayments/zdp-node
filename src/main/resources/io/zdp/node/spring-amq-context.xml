@@ -57,7 +57,7 @@
 		name="T.SETTLED.TRANSFER.REQ"
 		physicalName="T.SETTLED.TRANSFER.REQ" />
 
-	<bean class="io.zdp.node.service.validation.settle.TransferSettlementTopicPublisher">
+	<bean class="io.zdp.node.service.validation.settle.TransferSettlementRequestTopicPublisher">
 		<property
 			name="connectionFactory"
 			ref="amqFactory" />
@@ -65,6 +65,21 @@
 			name="topic"
 			ref="settlmentsRequestTopic" />
 	</bean>
+	
+	<!-- Failed topic -->
+	<amq:topic
+		id="failedTransferRequestTopic"
+		name="T.FAILED.TRANSFER.REQ"
+		physicalName="T.FAILED.TRANSFER.REQ" />
+
+	<bean class="io.zdp.node.service.validation.failed.FailedTransferRequestTopicPublisher">
+		<property
+			name="connectionFactory"
+			ref="amqFactory" />
+		<property
+			name="topic"
+			ref="failedTransferRequestTopic" />
+	</bean>	
 
 
 	<jms:listener-container connection-factory="amqFactory">

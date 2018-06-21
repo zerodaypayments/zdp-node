@@ -21,6 +21,9 @@ import io.zdp.node.storage.account.domain.Account;
 @Service
 public class AccountService {
 
+	public static final int NEW_ACCOUNT_HEIGHT = 1;
+	public static final byte[] NEW_ACCOUNT_HASH = new byte[] {};
+	
 	private final Logger log = LoggerFactory.getLogger( this.getClass() );
 
 	@Autowired
@@ -35,8 +38,8 @@ public class AccountService {
 			Account genesis = new Account();
 			genesis.setBalance( new BigDecimal( 90000000000L ) );
 			genesis.setCurve( Curves.DEFAULT_CURVE_INDEX );
-			genesis.setHeight( 1 );
-			genesis.setTransferHash( new byte [ ] {} );
+			genesis.setHeight( NEW_ACCOUNT_HEIGHT );
+			genesis.setTransferHash( NEW_ACCOUNT_HASH );
 			genesis.setUuid( Base58.decode( "3xN7bk2FxkcuCotTF4ByGN6EYiio" ) );
 
 			// mint a genesis account

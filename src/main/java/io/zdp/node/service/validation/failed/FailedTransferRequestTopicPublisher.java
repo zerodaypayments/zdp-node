@@ -1,4 +1,4 @@
-package io.zdp.node.service.validation.settle;
+package io.zdp.node.service.validation.failed;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Topic;
@@ -10,7 +10,7 @@ import org.springframework.jms.core.JmsTemplate;
 /**
  * @author sn_1970@yahoo.com
  */
-public class TransferSettlementRequestTopicPublisher {
+public class FailedTransferRequestTopicPublisher {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -18,9 +18,9 @@ public class TransferSettlementRequestTopicPublisher {
 
 	private Topic topic;
 
-	public void send(final TransferSettlementRequest req) {
+	public void send(final FailedTransferRequest req) {
 
-		log.debug("Broadcast settlement: " + req);
+		log.debug("FailedTransferRequestTopicPublisher: " + req);
 
 		jmsTemplate.convertAndSend(topic, req);
 

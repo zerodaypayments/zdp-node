@@ -59,7 +59,7 @@ public class GetNodeAccountsResponseQueueListener {
 
 						if (confirmationCount >= networkTopologyService.getAllNodes().size()) {
 
-							log.debug("Ready to settle");
+							log.debug("Ready for consensus decision");
 
 							unconfirmedTransfer.setReadyToSettle(true);
 

@@ -13,22 +13,22 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
-import io.zdp.crypto.Base58;
+import io.zdp.node.service.validation.cache.key.ByteWrapper;
 
 @Component
 public class LockedAccountsCache {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private Cache<String, Boolean> cache;
+	private Cache<ByteWrapper, Boolean> cache;
 
 	@PostConstruct
 	public void init() {
 
-		RemovalListener<String, Boolean> listener = new RemovalListener<String, Boolean>() {
+		RemovalListener<ByteWrapper, Boolean> listener = new RemovalListener<ByteWrapper, Boolean>() {
 
 			@Override
-			public void onRemoval(RemovalNotification<String, Boolean> notification) {
+			public void onRemoval(RemovalNotification<ByteWrapper, Boolean> notification) {
 				log.debug("Transfer " + notification.getKey() + " removed");
 			}
 
@@ -43,21 +43,28 @@ public class LockedAccountsCache {
 			throw new RuntimeException("Account alread in cache: " + accountUuid);
 		}
 
-		cache.put(Base58.encode(accountUuid), true);
+		ByteWrapper bw = new ByteWrapper(accountUuid);
 
-		log.debug("Account added: " + accountUuid);
+		cache.put(bw, true);
+
+		log.debug("Account added: " + bw);
 
 	}
 
 	public boolean inProgress(byte[] accountUuid) {
 
-		return cache.getIfPresent(Base58.encode(accountUuid)) != null;
+		return cache.getIfPresent(new ByteWrapper(accountUuid)) != null;
 
 	}
 
 	public void remove(byte[] accountUuid) {
-		cache.invalidate(Base58.encode(accountUuid));
-		log.debug("Account removed: " + accountUuid);
+
+		ByteWrapper bw = new ByteWrapper(accountUuid);
+
+		cache.invalidate(bw);
+
+		log.debug("Account removed: " + bw);
+
 	}
 
 }

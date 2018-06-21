@@ -23,6 +23,7 @@ import io.zdp.model.network.NetworkNode;
 import io.zdp.model.network.NetworkTopologyListener;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.failed.FailedTransferRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
 import io.zdp.node.service.validation.settle.TransferSettlementRequestTopicListener;
@@ -45,6 +46,9 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 	private TransferSettlementRequestTopicListener transferSettlementRequestTopicListener;
 
 	@Autowired
+	private FailedTransferRequestTopicListener failedTransferRequestTopicListener;
+
+	@Autowired
 	@Qualifier("default-task-executor")
 	private TaskExecutor taskExecutor;
 
@@ -60,6 +64,9 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 	@Override
 	public void onChange() {
+
+		// TODO don't change not modified nodes, remove obsolete and re/create
+		// new ones only
 
 		log.debug("Network topology changed, rebuild ");
 
@@ -100,7 +107,7 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 			}
 
 			{
-				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_CANCELLED_TRANSFER_REQ, getNodeAccountsRequestTopicListener);
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_FAILED_TRANSFER_REQ, failedTransferRequestTopicListener);
 				listeners.get(remoteNode).add(l);
 			}
 

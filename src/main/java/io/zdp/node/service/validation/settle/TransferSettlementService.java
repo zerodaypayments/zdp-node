@@ -1,11 +1,15 @@
 package io.zdp.node.service.validation.settle;
 
+import java.math.BigDecimal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zdp.crypto.Base58;
+import io.zdp.crypto.Curves;
 import io.zdp.node.service.validation.cache.LockedAccountsCache;
 import io.zdp.node.service.validation.cache.RecentTransfersCache;
 import io.zdp.node.storage.account.domain.Account;
@@ -37,7 +41,7 @@ public class TransferSettlementService {
 		updateAccounts(req);
 
 		// Save ledger record
-		saveCurrentTransfer(req);
+		currentTransferDao.save(req.getCurrentTransfer());
 
 		// Add to the recent transfer cache (for replay detection)
 		recentTransfersCache.add(req.getTransferUuid());
@@ -46,10 +50,6 @@ public class TransferSettlementService {
 		lockedAccountsCache.remove(req.getFromAccount().getUuidAsBytes());
 		lockedAccountsCache.remove(req.getToAccount().getUuidAsBytes());
 
-	}
-
-	private void saveCurrentTransfer(TransferSettlementRequest req) {
-		currentTransferDao.save(req.getCurrentTransfer());
 	}
 
 	@Transactional(readOnly = false)
@@ -91,11 +91,23 @@ public class TransferSettlementService {
 
 	private void updateAccount(Account acc, Account other) {
 
+		acc.setBalance(other.getBalance());
+		acc.setHeight(other.getHeight());
+		acc.setTransferHash(other.getTransferHash());
+
 	}
 
 	private Account createNewAccount(Account other) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Account acc = new Account();
+
+		acc.setCurve(other.getCurve());
+
+		updateAccount(acc, other);
+
+		acc.setUuid(other.getUuid());
+
+		return acc;
 	}
 
 }

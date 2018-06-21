@@ -3,7 +3,7 @@
 <Configuration status="WARN">
 
 	<Appenders>
-	
+
 		<Console
 			name="console"
 			target="SYSTEM_OUT"
@@ -11,12 +11,14 @@
 			<PatternLayout
 				pattern="[%-5level] %d{dd-MMM-yy HH:mm:ss.SSS} %logger{36}.%M() - %msg%n" />
 		</Console>
-		
+
 		<RollingFile name="file">
 			<FileName>${sys:user.home}/.zdp/logs/node.log</FileName>
-			<FilePattern>${sys:user.home}/.zdp/logs/%d{yyyy-MM-dd-hh-mm}.log.zip</FilePattern>
+			<FilePattern>${sys:user.home}/.zdp/logs/node-%d{yyyy-MM-dd-hh-mm}.log.zip
+			</FilePattern>
 			<PatternLayout>
-				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} - %msg%n</Pattern>
+				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} -
+					%msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy
@@ -25,6 +27,23 @@
 			</Policies>
 			<DefaultRolloverStrategy max="5" />
 		</RollingFile>
+
+		<RollingFile name="validationLogFile">
+			<FileName>${sys:user.home}/.zdp/logs/validation.log</FileName>
+			<FilePattern>${sys:user.home}/.zdp/logs/validation-%d{yyyy-MM-dd-hh-mm}.log.zip
+			</FilePattern>
+			<PatternLayout>
+				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} -
+					%msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy
+					interval="2"
+					modulate="true" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
 	</Appenders>
 
 	<Loggers>
@@ -37,7 +56,7 @@
 			<AppenderRef ref="console" />
 			<AppenderRef ref="file" />
 		</Logger>
-		
+
 		<Logger
 			name="org.springframework.jms"
 			level="trace"
@@ -55,7 +74,17 @@
 		>
 			<AppenderRef ref="console" />
 			<AppenderRef ref="file" />
-			
+
+		</Logger>
+
+		<Logger
+			name="io.zdp.node.service.validation"
+			level="debug"
+			additivity="false"
+		>
+			<AppenderRef ref="console" />
+			<AppenderRef ref="validationLogFile" />
+
 		</Logger>
 
 		<Root
@@ -64,7 +93,7 @@
 		>
 			<AppenderRef ref="console" />
 			<AppenderRef ref="file" />
-			
+
 		</Root>
 	</Loggers>
 

@@ -73,7 +73,7 @@ public class CurrentTransferDaoImpl implements CurrentTransferDao {
 				try {
 
 					currentTransfersFileWriter.write(t.toRecordString());
-					currentTransfersFileWriter.write(IOUtils.LINE_SEPARATOR_UNIX);
+					currentTransfersFileWriter.write(IOUtils.LINE_SEPARATOR_WINDOWS);
 					currentTransfersFileWriter.flush();
 
 					recentTransfers.put(t.getUuid(), t);

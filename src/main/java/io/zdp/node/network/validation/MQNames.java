@@ -8,6 +8,6 @@ public interface MQNames {
 
 	public static final String TOPIC_SETTLED_TRANSFER_REQ = "T.SETTLED.TRANSFER.REQ";
 
-	public static final String TOPIC_CANCELLED_TRANSFER_REQ = "T.CANCELLED.TRANSFER.REQ";
+	public static final String TOPIC_FAILED_TRANSFER_REQ = "T.FAILED.TRANSFER.REQ";
 
 }
