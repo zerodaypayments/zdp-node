@@ -40,14 +40,14 @@ public class LockedAccountsCache {
 	public void add(byte[] accountUuid) {
 
 		if (inProgress(accountUuid)) {
-			throw new RuntimeException("Account alread in cache: " + accountUuid);
+			throw new RuntimeException("Account already locked: " + accountUuid);
 		}
 
 		ByteWrapper bw = new ByteWrapper(accountUuid);
 
 		cache.put(bw, true);
 
-		log.debug("Account added: " + bw);
+		log.debug("Account locked: " + bw);
 
 	}
 
@@ -63,7 +63,7 @@ public class LockedAccountsCache {
 
 		cache.invalidate(bw);
 
-		log.debug("Account removed: " + bw);
+		log.debug("Account un-locked: " + bw);
 
 	}
 

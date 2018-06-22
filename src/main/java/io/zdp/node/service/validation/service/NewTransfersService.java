@@ -53,9 +53,9 @@ public class NewTransfersService {
 	 */
 	public UnconfirmedTransfer transfer(TransferRequest request) throws TransferException {
 
-		log.debug("Request: " + request);
-		
 		ThreadContext.put(TRANSFER_UUID, Base58.encode(request.getUniqueTransactionUuid()));
+		
+		log.debug("Request: " + request);
 
 		// Validate and enrich transfer request
 		final UnconfirmedTransfer unconfirmedTransfer = validationService.validate(request);
