@@ -17,8 +17,7 @@
 			<FilePattern>${sys:user.home}/.zdp/logs/node-%d{yyyy-MM-dd-hh-mm}.log.zip
 			</FilePattern>
 			<PatternLayout>
-				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} -
-					%msg%n</Pattern>
+				<Pattern>%d{ddMMyy kk:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy
@@ -33,8 +32,7 @@
 			<FilePattern>${sys:user.home}/.zdp/logs/validation-%d{yyyy-MM-dd-hh-mm}.log.zip
 			</FilePattern>
 			<PatternLayout>
-				<Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} -
-					%msg%n</Pattern>
+				<Pattern>%d{ddMMyy kk:mm:ss.SSS} [%t] %-5level [%X{transferUuid}] %logger{36} - %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy

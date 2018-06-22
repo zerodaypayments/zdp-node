@@ -1,5 +1,6 @@
 package io.zdp.node.service.validation.getAccounts;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.validation.cache.UnconfirmedTransferMemoryPool;
 import io.zdp.node.service.validation.consensus.TransferConsensusService;
 import io.zdp.node.service.validation.model.UnconfirmedTransfer;
+import io.zdp.node.service.validation.service.NewTransfersService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
@@ -37,6 +39,8 @@ public class GetNodeAccountsResponseQueueListener {
 	public void onMessage(final GetNodeAccountsResponse resp) {
 
 		log.debug("Got accounts response from: " + resp.getServerUuid());
+		
+		ThreadContext.put(NewTransfersService.TRANSFER_UUID, Base58.encode(resp.getTransferUuid()));
 
 		if (validationNodeSigner.isValidSignature(resp)) {
 

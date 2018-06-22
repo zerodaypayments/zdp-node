@@ -3,6 +3,7 @@ package io.zdp.node.service.validation.getAccounts;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.encoders.Hex;
 
+import io.zdp.crypto.Base58;
 import io.zdp.crypto.Hashing;
 import io.zdp.node.service.validation.model.NetworkBaseSignedObject;
 
@@ -17,7 +18,7 @@ public class GetNodeAccountsRequest extends NetworkBaseSignedObject {
 	private byte[] fromAccountUuid;
 
 	private byte[] toAccountUuid;
-	
+
 	public byte[] getTransactionUuid() {
 		return transactionUuid;
 	}
@@ -53,7 +54,7 @@ public class GetNodeAccountsRequest extends NetworkBaseSignedObject {
 
 	@Override
 	public String toString() {
-		return "TransferConfirmationRequest [transactionUuid=" + Hex.toHexString(transactionUuid) + ", fromAccountUuid=" + Hex.toHexString(fromAccountUuid) + ", toAccountUuid=" + Hex.toHexString(toAccountUuid) + "]";
+		return "TransferConfirmationRequest [transactionUuid=" + Base58.encode(transactionUuid) + ", fromAccountUuid=" + Base58.encode(fromAccountUuid) + ", toAccountUuid=" + Base58.encode(toAccountUuid) + "]";
 	}
 
 }

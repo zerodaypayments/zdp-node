@@ -5,14 +5,17 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.zdp.crypto.Base58;
 import io.zdp.crypto.Signing;
 import io.zdp.node.network.validation.ValidationNetworkMQ;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.service.NewTransfersService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
@@ -46,6 +49,8 @@ public class GetNodeAccountsRequestTopicListener implements MessageListener {
 			final ObjectMessage om = (ObjectMessage) message;
 
 			final GetNodeAccountsRequest req = (GetNodeAccountsRequest) om.getObject();
+
+			ThreadContext.put(NewTransfersService.TRANSFER_UUID, Base58.encode(req.getTransactionUuid()));
 
 			if (validationNodeSigner.isValidSignature(req)) {
 

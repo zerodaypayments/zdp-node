@@ -2,12 +2,14 @@ package io.zdp.node.service.validation.service;
 
 import java.math.BigDecimal;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.zdp.api.model.v1.TransferRequest;
+import io.zdp.crypto.Base58;
 import io.zdp.node.error.TransferException;
 import io.zdp.node.service.validation.cache.UnconfirmedTransferMemoryPool;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequest;
@@ -22,6 +24,8 @@ import io.zdp.node.service.validation.model.UnconfirmedTransfer;
  */
 @Service
 public class NewTransfersService {
+
+	public static final String TRANSFER_UUID = "transferUuid";
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -50,9 +54,13 @@ public class NewTransfersService {
 	public UnconfirmedTransfer transfer(TransferRequest request) throws TransferException {
 
 		log.debug("Request: " + request);
+		
+		ThreadContext.put(TRANSFER_UUID, Base58.encode(request.getUniqueTransactionUuid()));
 
 		// Validate and enrich transfer request
 		final UnconfirmedTransfer unconfirmedTransfer = validationService.validate(request);
+		
+		ThreadContext.put(TRANSFER_UUID, unconfirmedTransfer.getTransactionUuid());
 
 		// Broadcast new un-confirmed transfer to Validation network
 		final GetNodeAccountsRequest getNodeAccountsRequest = toGetNodeAccountsRequest(unconfirmedTransfer);
