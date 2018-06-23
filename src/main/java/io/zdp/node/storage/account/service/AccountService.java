@@ -10,11 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.zdp.api.model.v1.GetBalanceRequest;
-import io.zdp.api.model.v1.GetBalanceResponse;
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.Curves;
-import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 
@@ -23,110 +20,47 @@ public class AccountService {
 
 	public static final int NEW_ACCOUNT_HEIGHT = 1;
 	public static final byte[] NEW_ACCOUNT_HASH = new byte[] {};
-	
-	private final Logger log = LoggerFactory.getLogger( this.getClass() );
+
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private AccountDao accountDao;
 
 	@PostConstruct
-	public void init ( ) throws Exception {
-		if ( accountDao.count() == 0 ) {
+	public void init() throws Exception {
+		if (accountDao.count() == 0) {
 
-			log.debug( "Seems like a fresh node start!" );
+			log.debug("Seems like a fresh node start!");
 
 			Account genesis = new Account();
-			genesis.setBalance( new BigDecimal( 90000000000L ) );
-			genesis.setCurve( Curves.DEFAULT_CURVE_INDEX );
-			genesis.setHeight( NEW_ACCOUNT_HEIGHT );
-			genesis.setTransferHash( NEW_ACCOUNT_HASH );
-			genesis.setUuid( Base58.decode( "3xN7bk2FxkcuCotTF4ByGN6EYiio" ) );
+			genesis.setBalance(new BigDecimal(90000000000L));
+			genesis.setCurve(Curves.DEFAULT_CURVE_INDEX);
+			genesis.setHeight(NEW_ACCOUNT_HEIGHT);
+			genesis.setTransferHash(NEW_ACCOUNT_HASH);
+			genesis.setUuid(Base58.decode("3xN7bk2FxkcuCotTF4ByGN6EYiio"));
 
 			// mint a genesis account
-			accountDao.save( genesis );
+			accountDao.save(genesis);
 
-			log.info( "Just minted a genesis account, how exciting is that????" );
-			log.info( genesis.toString() );
+			log.info("Just minted a genesis account, how exciting is that????");
+			log.info(genesis.toString());
 
 		}
 	}
 
-	public GetBalanceResponse getBalance ( GetBalanceRequest request ) throws Exception {
-
-		long st = System.currentTimeMillis();
-
-		final GetBalanceResponse localResponse = getLocalAccountBalance( request );
-
-		final GetBalanceResponse remoteResponse = new GetBalanceResponse();
-
-		// Get network view on the balance
-		//validationNetworkClient.getBalance( request, remoteResponse );
-
-		long et = System.currentTimeMillis();
-		log.debug( "Getting balance took: " + ( et - st ) + " ms." );
-
-		if ( remoteResponse.getHeight() > localResponse.getHeight() ) {
-			updateLocalAccountBalance( request, localResponse, remoteResponse );
-			return remoteResponse;
-		} else {
-			return localResponse;
-		}
-
-	}
-
-	@Transactional ( readOnly = false )
-	private void updateLocalAccountBalance ( GetBalanceRequest request, GetBalanceResponse localResponse, GetBalanceResponse remoteResponse ) {
-
-		final byte [ ] accountUuid = new ZDPAccountUuid( request.getAccountUuid() ).getPublicKeyHash();
-
-		Account account = this.accountDao.findByUuid( accountUuid );
-
-		if ( account == null ) {
-			account = new Account();
-			account.setUuid( accountUuid );
-		}
-
-		account.setBalance( new BigDecimal( remoteResponse.getAmount() ) );
-		account.setHeight( remoteResponse.getHeight() );
-		account.setTransferHash( remoteResponse.getChainHash() );
-
-		this.accountDao.save( account );
-
-	}
-
-	@Transactional ( readOnly = true )
-	public GetBalanceResponse getLocalAccountBalance ( GetBalanceRequest req ) {
-
-		final GetBalanceResponse resp = new GetBalanceResponse();
-
-		// Generate account from public key
-		final byte [ ] accountUuid = new ZDPAccountUuid( req.getAccountUuid() ).getPublicKeyHash();
-
-		Account account = this.accountDao.findByUuid( accountUuid );
-
-		if ( account != null ) {
-		//	resp.setCurve( account.getCurve() );
-			resp.setAmount( account.getBalance().toPlainString() );
-			resp.setHeight( account.getHeight() );
-			resp.setChainHash( account.getTransferHash() );
-		}
-
-		return resp;
-	}
-
-	@Transactional ( readOnly = true )
-	public long countAccounts ( ) {
+	@Transactional(readOnly = true)
+	public long countAccounts() {
 		return this.accountDao.count();
 	}
 
-	@Transactional ( readOnly = true )
-	public Account findByUuid ( byte [ ] uuid ) {
-		return this.accountDao.findByUuid( uuid );
+	@Transactional(readOnly = true)
+	public Account findByUuid(byte[] uuid) {
+		return this.accountDao.findByUuid(uuid);
 	}
 
-	@Transactional ( readOnly = false )
-	public Account save ( Account a ) {
-		return this.accountDao.save( a );
+	@Transactional(readOnly = false)
+	public Account save(Account a) {
+		return this.accountDao.save(a);
 	}
 
 }

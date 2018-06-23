@@ -23,9 +23,12 @@ import io.zdp.model.network.NetworkNode;
 import io.zdp.model.network.NetworkTopologyListener;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.balance.BalanceRequestTopicListener;
+import io.zdp.node.service.validation.balance.BalanceResponse;
 import io.zdp.node.service.validation.failed.FailedTransferRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
+import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.service.validation.settle.TransferSettlementRequestTopicListener;
 
 @Service
@@ -49,12 +52,20 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 	private FailedTransferRequestTopicListener failedTransferRequestTopicListener;
 
 	@Autowired
+	private BalanceRequestTopicListener balanceRequestTopicListener;
+
+	@Autowired
+	private ValidationNodeSigner validationNodeSigner;
+
+	@Autowired
 	@Qualifier("default-task-executor")
 	private TaskExecutor taskExecutor;
 
 	private Map<NetworkNode, List<DefaultMessageListenerContainer>> listeners = new HashMap<>();
 
-	private Map<String, JmsTemplate> jmsTemplates = new HashMap<>();
+	private Map<String, JmsTemplate> queueTransferNewResponseJmsTemplates = new HashMap<>();
+
+	private Map<String, JmsTemplate> queueAccountBalanceResponseJmsTemplates = new HashMap<>();
 
 	@PostConstruct
 	public void init() {
@@ -111,11 +122,26 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 				listeners.get(remoteNode).add(l);
 			}
 
-			JmsTemplate t = new JmsTemplate(pcf);
-			t.setDefaultDestinationName(MQNames.QUEUE_TRANSFER_NEW_RESP);
-			t.afterPropertiesSet();
+			{
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_GET_BALANCE_REQ, balanceRequestTopicListener);
+				listeners.get(remoteNode).add(l);
+			}
 
-			jmsTemplates.put(remoteNode.getUuid(), t);
+			{
+
+				JmsTemplate t = new JmsTemplate(pcf);
+				t.setDefaultDestinationName(MQNames.QUEUE_TRANSFER_NEW_RESP);
+				t.afterPropertiesSet();
+				queueTransferNewResponseJmsTemplates.put(remoteNode.getUuid(), t);
+			}
+
+			{
+				JmsTemplate t = new JmsTemplate(pcf);
+				t.setDefaultDestinationName(MQNames.QUEUE_GET_BALANCE_RESP);
+				t.afterPropertiesSet();
+				queueAccountBalanceResponseJmsTemplates.put(remoteNode.getUuid(), t);
+
+			}
 
 		}
 
@@ -140,7 +166,27 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 
 		log.debug("Send [" + c + "] to [" + serverUuid + "]");
 
-		this.jmsTemplates.get(serverUuid).convertAndSend(c);
+		try {
+			validationNodeSigner.sign(c);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+		}
+
+		this.queueTransferNewResponseJmsTemplates.get(serverUuid).convertAndSend(c);
+
+	}
+
+	public void send(String serverUuid, BalanceResponse resp) {
+
+		log.debug("Send [" + resp + "] to [" + serverUuid + "]");
+
+		try {
+			validationNodeSigner.sign(resp);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+		}
+
+		this.queueAccountBalanceResponseJmsTemplates.get(serverUuid).convertAndSend(resp);
 
 	}
 

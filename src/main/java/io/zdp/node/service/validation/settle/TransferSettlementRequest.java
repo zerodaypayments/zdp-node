@@ -25,7 +25,7 @@ public class TransferSettlementRequest extends NetworkBaseSignedObject {
 		hash = ArrayUtils.addAll(hash, Hashing.ripemd160(currentTransfer.toRecordString()));
 		hash = ArrayUtils.addAll(hash, transferUuid);
 
-		return hash;
+		return Hashing.ripemd160(hash);
 	}
 
 	public byte[] getTransferUuid() {

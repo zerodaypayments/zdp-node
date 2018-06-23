@@ -15,9 +15,7 @@ import io.zdp.node.service.validation.service.NewTransfersService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
 /**
- * 
  * @author sn_1970@yahoo.com
- *
  */
 @Component(value = "getNodeAccountsResponseQueueListener")
 public class GetNodeAccountsResponseQueueListener {

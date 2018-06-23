@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import io.zdp.api.model.v1.TransferResponse;
 import io.zdp.crypto.Hashing;
 import io.zdp.model.network.NetworkTopologyService;
-import io.zdp.node.service.validation.cache.TransferConsensusCache;
 import io.zdp.node.service.validation.failed.FailedTransferRequest;
 import io.zdp.node.service.validation.failed.FailedTransferRequestTopicPublisher;
 import io.zdp.node.service.validation.failed.FailedTransferService;

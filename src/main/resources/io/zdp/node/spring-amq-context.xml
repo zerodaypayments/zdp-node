@@ -65,7 +65,7 @@
 			name="topic"
 			ref="settlmentsRequestTopic" />
 	</bean>
-	
+
 	<!-- Failed topic -->
 	<amq:topic
 		id="failedTransferRequestTopic"
@@ -79,8 +79,22 @@
 		<property
 			name="topic"
 			ref="failedTransferRequestTopic" />
-	</bean>	
+	</bean>
 
+	<!-- Get balance request topic -->
+	<amq:topic
+		id="getBalanceRequestTopic"
+		name="T.GET.BALANCE.REQ"
+		physicalName="T.GET.BALANCE.REQ" />
+
+	<bean class="io.zdp.node.service.validation.balance.GetBalanceRequestTopicPublisher">
+		<property
+			name="connectionFactory"
+			ref="amqFactory" />
+		<property
+			name="topic"
+			ref="getBalanceRequestTopic" />
+	</bean>
 
 	<jms:listener-container connection-factory="amqFactory">
 
@@ -88,6 +102,12 @@
 			destination="Q.TRANSFER.NEW.RESP"
 			ref="getNodeAccountsResponseQueueListener"
 			method="onMessage" />
+
+		<jms:listener
+			destination="Q.GET.BALANCE.RESP"
+			ref="getBalanceResponseQueueListener"
+			method="onMessage" />			
+			
 	</jms:listener-container>
 
 </beans>

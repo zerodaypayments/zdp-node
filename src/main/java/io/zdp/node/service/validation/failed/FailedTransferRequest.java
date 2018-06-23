@@ -27,7 +27,7 @@ public class FailedTransferRequest extends NetworkBaseSignedObject {
 		hash = ArrayUtils.addAll(hash, fromAccountUuid);
 		hash = ArrayUtils.addAll(hash, toAccountUuid);
 
-		return null;
+		return Hashing.ripemd160(hash);
 	}
 
 	public CurrentTransfer getCurrentTransfer() {

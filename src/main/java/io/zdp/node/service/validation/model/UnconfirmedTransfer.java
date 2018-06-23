@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.zdp.crypto.Base58;
@@ -33,7 +33,7 @@ public final class UnconfirmedTransfer implements Serializable {
 
 	private boolean readyToSettle;
 
-	private List<GetNodeAccountsResponse> confirmations = new ArrayList<>();
+	private List<GetNodeAccountsResponse> confirmations = Collections.synchronizedList(new ArrayList<>());
 
 	public boolean isReadyToSettle() {
 		return readyToSettle;
