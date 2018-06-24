@@ -87,7 +87,7 @@
 		name="T.GET.BALANCE.REQ"
 		physicalName="T.GET.BALANCE.REQ" />
 
-	<bean class="io.zdp.node.service.validation.balance.GetBalanceRequestTopicPublisher">
+	<bean class="io.zdp.node.service.validation.balance.BalanceRequestTopicPublisher">
 		<property
 			name="connectionFactory"
 			ref="amqFactory" />

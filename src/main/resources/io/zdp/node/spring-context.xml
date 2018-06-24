@@ -47,12 +47,12 @@
 	<task:scheduler
 		id="default-task-scheduler"
 		pool-size="64" />
-		
+
 	<task:scheduled-tasks>
 		<task:scheduled
 			ref="NetworkTopologyService"
 			method="init"
-			fixed-delay="60000" />
+			fixed-delay="600000" /> <!-- 10 minutes -->
 	</task:scheduled-tasks>
 
 

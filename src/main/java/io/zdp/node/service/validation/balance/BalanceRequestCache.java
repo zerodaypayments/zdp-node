@@ -44,7 +44,6 @@ public class BalanceRequestCache {
 		final RemovalListener<ByteWrapper, BalanceRequest> listener = new RemovalListener<ByteWrapper, BalanceRequest>() {
 
 			@Override
-			@Transactional
 			public void onRemoval(RemovalNotification<ByteWrapper, BalanceRequest> entry) {
 
 				final BalanceRequest request = entry.getValue();
@@ -57,8 +56,11 @@ public class BalanceRequestCache {
 
 				for (final BalanceResponse resp : request.getResponses()) {
 
-					if (account == null || account.getHeight() < resp.getAccount().getHeight()) {
-						account = resp.getAccount();
+					if (resp.getAccount() != null) {
+
+						if (account == null || account.getHeight() < resp.getAccount().getHeight()) {
+							account = resp.getAccount();
+						}
 					}
 
 				}

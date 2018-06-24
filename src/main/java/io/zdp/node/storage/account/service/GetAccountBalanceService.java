@@ -1,9 +1,6 @@
 package io.zdp.node.storage.account.service;
 
-import java.math.BigDecimal;
 import java.util.concurrent.Future;
-
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import io.zdp.api.model.v1.GetBalanceRequest;
-import io.zdp.api.model.v1.GetBalanceResponse;
-import io.zdp.crypto.Base58;
-import io.zdp.crypto.Curves;
 import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.service.validation.balance.AccountBalanceCache;
 import io.zdp.node.service.validation.balance.BalanceRequest;
@@ -57,15 +50,25 @@ public class GetAccountBalanceService {
 		balanceRequest.setAccountUuid(accountUuid.getPublicKeyHash());
 		validationNodeSigner.sign(balanceRequest);
 
+		log.debug("Balance request: " + balanceRequest);
+
 		// Broadcast
 		getBalanceRequestTopicPublisher.send(balanceRequest);
-		
+
+		log.debug("Balance request broadcasted: " + balanceRequest);
+
 		// Save to local cache storage
 		balanceRequestCache.add(accountUuid.getPublicKeyHash(), balanceRequest);
 
+		log.debug("Balance saved to local store: " + balanceRequest);
+
 		// Get local account
 		final Account account = this.accountDao.findByUuid(accountUuid.getPublicKeyHash());
-		balanceRequest.getResponses().add(new BalanceResponse(account));
+		if (account != null) {
+			balanceRequest.getResponses().add(new BalanceResponse(account));
+		}
+
+		log.debug("Sleep for 5 seconds");
 
 		Thread.sleep(5000);
 

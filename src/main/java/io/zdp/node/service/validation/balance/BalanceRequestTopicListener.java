@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.zdp.crypto.Base58;
-import io.zdp.node.network.validation.ValidationNetworkMQ;
+import io.zdp.node.service.validation.mq.ValidationNetworkMQ;
 import io.zdp.node.service.validation.service.NewTransfersService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.domain.Account;
@@ -57,6 +57,8 @@ public class BalanceRequestTopicListener implements MessageListener {
 
 				if (acc != null) {
 					networkMQ.send(req.getServerUuid(), new BalanceResponse(acc));
+				} else {
+					log.warn("No account found, not sending back anything: " + req.toString());
 				}
 
 			} else {

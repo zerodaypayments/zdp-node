@@ -1,4 +1,4 @@
-package io.zdp.node.network.validation;
+package io.zdp.node.service.validation.mq;
 
 public interface MQNames {
 

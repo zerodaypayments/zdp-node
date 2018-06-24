@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 import io.zdp.crypto.Base58;
 import io.zdp.crypto.Signing;
-import io.zdp.node.network.validation.ValidationNetworkMQ;
 import io.zdp.node.service.LocalNodeService;
+import io.zdp.node.service.validation.mq.ValidationNetworkMQ;
 import io.zdp.node.service.validation.service.NewTransfersService;
 import io.zdp.node.service.validation.service.ValidationNodeSigner;
 
