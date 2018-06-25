@@ -15,6 +15,16 @@ public class BalanceRequest extends NetworkBaseSignedObject {
 
 	private transient List<BalanceResponse> responses = Collections.synchronizedList(new ArrayList<>());
 
+	private transient boolean resolved;
+
+	public boolean isResolved() {
+		return resolved;
+	}
+
+	public void setResolved(boolean resolved) {
+		this.resolved = resolved;
+	}
+
 	@Override
 	public byte[] toHash() {
 

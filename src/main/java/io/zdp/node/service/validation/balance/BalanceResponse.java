@@ -18,6 +18,11 @@ public class BalanceResponse extends NetworkBaseSignedObject {
 		this.accountUuid = a.getUuidAsBytes();
 	}
 
+	public BalanceResponse(byte[] accountUuid) {
+		super();
+		this.accountUuid = accountUuid;
+	}
+
 	public BalanceResponse() {
 		super();
 	}
@@ -25,7 +30,11 @@ public class BalanceResponse extends NetworkBaseSignedObject {
 	@Override
 	public byte[] toHash() {
 
-		byte[] hash = account.toHashSignature();
+		byte[] hash = new byte[] {};
+
+		if (account != null) {
+			hash = ArrayUtils.addAll(hash, account.toHashSignature());
+		}
 
 		hash = ArrayUtils.addAll(hash, accountUuid);
 

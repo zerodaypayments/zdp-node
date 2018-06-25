@@ -1,4 +1,4 @@
-package io.zdp.node.storage.account.service;
+package io.zdp.node.service.validation.service;
 
 import java.util.concurrent.Future;
 
@@ -14,9 +14,9 @@ import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.node.service.validation.balance.AccountBalanceCache;
 import io.zdp.node.service.validation.balance.BalanceRequest;
 import io.zdp.node.service.validation.balance.BalanceRequestCache;
+import io.zdp.node.service.validation.balance.BalanceRequestResolver;
 import io.zdp.node.service.validation.balance.BalanceRequestTopicPublisher;
 import io.zdp.node.service.validation.balance.BalanceResponse;
-import io.zdp.node.service.validation.service.ValidationNodeSigner;
 import io.zdp.node.storage.account.dao.AccountDao;
 import io.zdp.node.storage.account.domain.Account;
 
@@ -40,8 +40,17 @@ public class GetAccountBalanceService {
 	@Autowired
 	private AccountBalanceCache accountBalanceCache;
 
+	@Autowired
+	private BalanceRequestResolver resolver;
+
 	@Async
 	public Future<Account> getBalance(final GetBalanceRequest request, final ZDPAccountUuid accountUuid) throws Exception {
+
+		// is in process? return
+		if (balanceRequestCache.contains(accountUuid.getPublicKeyHash())) {
+			log.warn("Balance request in progress, return");
+			return null;
+		}
 
 		final long st = System.currentTimeMillis();
 
@@ -66,6 +75,8 @@ public class GetAccountBalanceService {
 		final Account account = this.accountDao.findByUuid(accountUuid.getPublicKeyHash());
 		if (account != null) {
 			balanceRequest.getResponses().add(new BalanceResponse(account));
+		} else {
+			balanceRequest.getResponses().add(new BalanceResponse(accountUuid.getPublicKeyHash()));
 		}
 
 		log.debug("Sleep for 5 seconds");
@@ -74,9 +85,19 @@ public class GetAccountBalanceService {
 
 		long et = System.currentTimeMillis();
 
+		synchronized (balanceRequest) {
+			if (balanceRequest.isResolved() == false) {
+				resolver.resolve(balanceRequest);
+			}
+		}
+
 		log.debug("Getting balance took: " + (et - st) + " ms.");
 
-		return new AsyncResult<Account>(this.accountBalanceCache.get(accountUuid.getPublicKeyHash()));
+		Account acc = this.accountBalanceCache.get(accountUuid.getPublicKeyHash());
+
+		log.debug("Acc: " + acc);
+
+		return new AsyncResult<Account>(acc);
 
 	}
 

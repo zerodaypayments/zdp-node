@@ -58,7 +58,8 @@ public class BalanceRequestTopicListener implements MessageListener {
 				if (acc != null) {
 					networkMQ.send(req.getServerUuid(), new BalanceResponse(acc));
 				} else {
-					log.warn("No account found, not sending back anything: " + req.toString());
+					log.warn("No account found, sending empty response back: " + req.toString());
+					networkMQ.send(req.getServerUuid(), new BalanceResponse(req.getAccountUuid()));
 				}
 
 			} else {

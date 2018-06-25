@@ -24,8 +24,8 @@ import io.zdp.crypto.mnemonics.Mnemonics;
 import io.zdp.crypto.mnemonics.Mnemonics.Language;
 import io.zdp.node.service.validation.balance.AccountBalanceCache;
 import io.zdp.node.service.validation.balance.BalanceRequestCache;
+import io.zdp.node.service.validation.service.GetAccountBalanceService;
 import io.zdp.node.storage.account.domain.Account;
-import io.zdp.node.storage.account.service.GetAccountBalanceService;
 
 @RestController
 public class AccountAction {

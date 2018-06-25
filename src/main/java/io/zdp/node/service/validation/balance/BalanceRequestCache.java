@@ -3,7 +3,6 @@ package io.zdp.node.service.validation.balance;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +16,6 @@ import com.google.common.cache.RemovalNotification;
 
 import io.zdp.crypto.Base58;
 import io.zdp.node.service.validation.cache.key.ByteWrapper;
-import io.zdp.node.storage.account.domain.Account;
-import io.zdp.node.storage.account.service.AccountService;
 
 /**
  * 
@@ -33,10 +30,7 @@ public class BalanceRequestCache {
 	private Cache<ByteWrapper, BalanceRequest> cache;
 
 	@Autowired
-	private AccountService accountService;
-
-	@Autowired
-	private AccountBalanceCache accountBalanceCache;
+	private BalanceRequestResolver resolver;
 
 	@PostConstruct
 	public void init() {
@@ -46,41 +40,15 @@ public class BalanceRequestCache {
 			@Override
 			public void onRemoval(RemovalNotification<ByteWrapper, BalanceRequest> entry) {
 
-				final BalanceRequest request = entry.getValue();
+				BalanceRequest req = entry.getValue();
 
-				log.debug("Finalizing account balance: " + Base58.encode(request.getAccountUuid()));
+				log.debug("Expiring balance request: " + req);
 
-				// Account account = accountService.findByUuid(request.getAccountUuid());
-
-				Account account = null;
-
-				for (final BalanceResponse resp : request.getResponses()) {
-
-					if (resp.getAccount() != null) {
-
-						if (account == null || account.getHeight() < resp.getAccount().getHeight()) {
-							account = resp.getAccount();
-						}
+				synchronized (req) {
+					if (false == req.isResolved()) {
+						resolver.resolve(req);
 					}
-
 				}
-
-				Account existing = accountService.findByUuid(request.getAccountUuid());
-
-				if (existing == null) {
-					existing = new Account();
-					existing.setCurve(account.getCurve());
-					existing.setUuid(account.getUuidAsBytes());
-				}
-
-				existing.setBalance(account.getBalance());
-				existing.setHeight(account.getHeight());
-				existing.setTransferHash(account.getTransferHash());
-
-				accountBalanceCache.add(existing.getUuidAsBytes(), existing);
-
-				accountService.save(existing);
-
 			}
 		};
 
