@@ -87,7 +87,7 @@
 		name="T.GET.BALANCE.REQ"
 		physicalName="T.GET.BALANCE.REQ" />
 
-	<bean class="io.zdp.node.service.validation.balance.BalanceRequestTopicPublisher">
+	<bean class="io.zdp.node.service.validation.balance.get.BalanceRequestTopicPublisher">
 		<property
 			name="connectionFactory"
 			ref="amqFactory" />
@@ -95,6 +95,22 @@
 			name="topic"
 			ref="getBalanceRequestTopic" />
 	</bean>
+	
+	<!-- Update balance request Validation topic -->
+	<amq:topic
+		id="updateBalanceRequestValidationTopic"
+		name="T.VALIDATION.NETWORK.UPDATE.BALANCE.REQ"
+		physicalName="T.VALIDATION.NETWORK.UPDATE.BALANCE.REQ" />
+
+	<bean class="io.zdp.node.service.validation.balance.update.UpdateBalanceRequestValidationTopicPublisher">
+		<property
+			name="connectionFactory"
+			ref="amqFactory" />
+		<property
+			name="topic"
+			ref="updateBalanceRequestValidationTopic" />
+	</bean>
+		
 
 	<jms:listener-container connection-factory="amqFactory">
 

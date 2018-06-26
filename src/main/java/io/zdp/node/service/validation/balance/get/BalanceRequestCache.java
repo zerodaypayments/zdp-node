@@ -1,4 +1,4 @@
-package io.zdp.node.service.validation.balance;
+package io.zdp.node.service.validation.balance.get;
 
 import java.util.concurrent.TimeUnit;
 

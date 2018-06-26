@@ -22,8 +22,8 @@ import io.zdp.crypto.account.ZDPAccountUuid;
 import io.zdp.crypto.key.ZDPKeyPair;
 import io.zdp.crypto.mnemonics.Mnemonics;
 import io.zdp.crypto.mnemonics.Mnemonics.Language;
-import io.zdp.node.service.validation.balance.AccountBalanceCache;
-import io.zdp.node.service.validation.balance.BalanceRequestCache;
+import io.zdp.node.service.validation.balance.get.AccountBalanceCache;
+import io.zdp.node.service.validation.balance.get.BalanceRequestCache;
 import io.zdp.node.service.validation.service.GetAccountBalanceService;
 import io.zdp.node.storage.account.domain.Account;
 

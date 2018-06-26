@@ -1,4 +1,4 @@
-package io.zdp.node.service.validation.balance;
+package io.zdp.node.service.validation.balance.get;
 
 import org.apache.commons.lang3.ArrayUtils;
 

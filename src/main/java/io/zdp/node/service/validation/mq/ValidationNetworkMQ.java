@@ -23,8 +23,9 @@ import io.zdp.model.network.NetworkNode;
 import io.zdp.model.network.NetworkTopologyListener;
 import io.zdp.model.network.NetworkTopologyService;
 import io.zdp.node.service.LocalNodeService;
-import io.zdp.node.service.validation.balance.BalanceRequestTopicListener;
-import io.zdp.node.service.validation.balance.BalanceResponse;
+import io.zdp.node.service.validation.balance.get.BalanceRequestTopicListener;
+import io.zdp.node.service.validation.balance.get.BalanceResponse;
+import io.zdp.node.service.validation.balance.update.UpdateBalanceRequestTopicListener;
 import io.zdp.node.service.validation.failed.FailedTransferRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsRequestTopicListener;
 import io.zdp.node.service.validation.getAccounts.GetNodeAccountsResponse;
@@ -52,7 +53,10 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 	private FailedTransferRequestTopicListener failedTransferRequestTopicListener;
 
 	@Autowired
-	private BalanceRequestTopicListener balanceRequestTopicListener;
+	private BalanceRequestTopicListener getBalanceRequestTopicListener;
+
+	@Autowired
+	private UpdateBalanceRequestTopicListener updateBalanceRequestTopicListener;
 
 	@Autowired
 	private ValidationNodeSigner validationNodeSigner;
@@ -123,12 +127,16 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 			}
 
 			{
-				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_GET_BALANCE_REQ, balanceRequestTopicListener);
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_GET_BALANCE_REQ, getBalanceRequestTopicListener);
 				listeners.get(remoteNode).add(l);
 			}
 
 			{
+				DefaultMessageListenerContainer l = createListener(pcf, MQNames.TOPIC_VALIDATION_NETWORK_UPDATE_BALANCE_REQ, updateBalanceRequestTopicListener);
+				listeners.get(remoteNode).add(l);
+			}
 
+			{
 				JmsTemplate t = new JmsTemplate(pcf);
 				t.setDefaultDestinationName(MQNames.QUEUE_TRANSFER_NEW_RESP);
 				t.afterPropertiesSet();
@@ -140,7 +148,6 @@ public class ValidationNetworkMQ implements NetworkTopologyListener {
 				t.setDefaultDestinationName(MQNames.QUEUE_GET_BALANCE_RESP);
 				t.afterPropertiesSet();
 				queueAccountBalanceResponseJmsTemplates.put(remoteNode.getUuid(), t);
-
 			}
 
 		}
