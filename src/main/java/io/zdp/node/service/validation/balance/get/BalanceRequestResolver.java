@@ -20,6 +20,9 @@ public class BalanceRequestResolver {
 	private UpdateBalanceService updateBalanceService;
 
 	@Autowired
+	private AccountBalanceCache accountBalanceCache;
+
+	@Autowired
 	private UpdateBalanceRequestValidationTopicPublisher updateBalanceRequestValidationTopicPublisher;
 
 	public void resolve(final BalanceRequest request) {
@@ -49,6 +52,8 @@ public class BalanceRequestResolver {
 				}
 
 				log.debug("Account for balance finalized: " + account);
+
+				this.accountBalanceCache.add(account.getUuidAsBytes(), account);
 
 				UpdateBalanceRequest updateBalanceRequest = new UpdateBalanceRequest(account);
 
