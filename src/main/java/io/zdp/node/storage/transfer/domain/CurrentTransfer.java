@@ -23,7 +23,7 @@ public class CurrentTransfer implements Serializable {
 
 	private String memo = StringUtils.EMPTY;
 
-	private String status;
+	private String status = StringUtils.EMPTY;
 
 	public String toRecordString() {
 

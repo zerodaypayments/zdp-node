@@ -60,6 +60,7 @@ public class UnconfirmedTransferMemoryPool {
 					currentTransfer.setStatus(TransferResponse.ERROR_NOT_CONFIRMED);
 					currentTransferDao.save(currentTransfer);
 
+					// TODO do i need to broadcase un-confirmed transaction???
 				}
 
 				log.debug("Transfer " + notification.getKey() + " removed from memory pool");

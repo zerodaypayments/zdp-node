@@ -48,6 +48,7 @@ public class BalanceRequestResolver {
 
 				if (account == null) {
 					log.warn("Looks like account cannot be found as it doesnt exist in the network yet");
+					request.setResolved(true);
 					return;
 				}
 

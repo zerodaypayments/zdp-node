@@ -2,6 +2,7 @@ package io.zdp.node.service.validation.service;
 
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,10 +80,13 @@ public class GetAccountBalanceService {
 			balanceRequest.getResponses().add(new BalanceResponse(accountUuid.getPublicKeyHash()));
 		}
 
-		log.debug("Sleep for 5 seconds");
-
-		Thread.sleep(5000);
-
+		// wait for 5 seconds
+		final long waitForBalanceEnd = System.currentTimeMillis() + (DateUtils.MILLIS_PER_SECOND * 5);
+		
+		while (waitForBalanceEnd > System.currentTimeMillis() && false == balanceRequest.isResolved()) {
+			Thread.sleep(50);
+		}
+		
 		long et = System.currentTimeMillis();
 
 		synchronized (balanceRequest) {
