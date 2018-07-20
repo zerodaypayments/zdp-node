@@ -44,7 +44,7 @@ public class CurrentTransferDaoImpl implements CurrentTransferDao {
 
 		this.currentTransfersFileWriter = new FileWriter(this.currentTransfersFile, true);
 
-		this.recentTransfers = CacheBuilder.newBuilder().maximumSize(100000).build();
+		this.recentTransfers = CacheBuilder.newBuilder().maximumSize(1000000).build();
 
 	}
 
@@ -66,17 +66,18 @@ public class CurrentTransferDaoImpl implements CurrentTransferDao {
 	@Override
 	public void save(CurrentTransfer t) {
 
-		if (this.recentTransfers.getIfPresent(t) == null) {
+		if (this.recentTransfers.getIfPresent(t.getUuid()) == null) {
 
 			synchronized (currentTransfersFileWriter) {
 
 				try {
 
+					recentTransfers.put(t.getUuid(), t);
+					
 					currentTransfersFileWriter.write(t.toRecordString());
 					currentTransfersFileWriter.write(IOUtils.LINE_SEPARATOR_WINDOWS);
 					currentTransfersFileWriter.flush();
 
-					recentTransfers.put(t.getUuid(), t);
 
 					log.debug("Added transfer: " + t);
 

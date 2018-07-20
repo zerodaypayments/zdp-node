@@ -41,9 +41,9 @@ public class CurrentTransfer implements Serializable {
 		sb.append(PIPE);
 		sb.append(StringUtils.rightPad(fee, 8, StringUtils.SPACE));
 		sb.append(PIPE);
-		sb.append(sb.append(StringUtils.rightPad(memo, 64, StringUtils.SPACE)));
+		sb.append(StringUtils.rightPad(memo, 64, StringUtils.SPACE));
 		sb.append(PIPE);
-		sb.append(sb.append(StringUtils.rightPad(status, 26, StringUtils.SPACE)));
+		sb.append(StringUtils.rightPad(status, 26, StringUtils.SPACE));
 
 		return sb.toString();
 
