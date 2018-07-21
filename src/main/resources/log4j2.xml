@@ -84,6 +84,16 @@
 			<AppenderRef ref="validationLogFile" />
 
 		</Logger>
+		
+		<Logger
+			name="io.zdp.node.storage.transfer.dao.impl"
+			level="debug"
+			additivity="false"
+		>
+			<AppenderRef ref="console" />
+			<AppenderRef ref="validationLogFile" />
+
+		</Logger>
 
 		<Root
 			level="info"
